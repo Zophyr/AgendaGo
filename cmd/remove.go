@@ -47,4 +47,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// removeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	removeCmd.Flags().StringSliceP("participator", "p", nil, "/")
+	removeCmd.Flags().StringP("title", "t", "", "/")
 }

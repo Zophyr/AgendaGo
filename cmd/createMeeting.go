@@ -47,4 +47,9 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// createMeetingCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	createMeetingCmd.Flags().StringP("title", "t", "", "/")
+	createMeetingCmd.Flags().StringSliceP("participator", "p", nil, "/")
+	createMeetingCmd.Flags().StringP("starttime","s","","/")
+	createMeetingCmd.Flags().StringP("endtime", "e", "", "/")
 }
