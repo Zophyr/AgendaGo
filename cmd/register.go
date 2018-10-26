@@ -23,16 +23,19 @@ import (
 // registerCmd represents the register command
 var registerCmd = &cobra.Command{
 	Use:   "register",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Used to register account",
+	Long:  `User can register itself by username, password, email and phone.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		username, _ := cmd.Flags().GetString("username")
-		fmt.Println("register called by " + username)
+		password, _ := cmd.Flags().GetString("password")
+		email, _ := cmd.Flags().GetString("email")
+		phone, _ := cmd.Flags().GetString("phone")
+		err := RegisterUser(username, password, email, phone)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(username + " registers successful")
+		}
 	},
 }
 
@@ -48,9 +51,9 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// registerCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	
+
 	registerCmd.Flags().StringP("username", "u", "", "/")
 	registerCmd.Flags().StringP("password", "p", "", "/")
-	registerCmd.Flags().StringP("email", "m", "","/")
-	registerCmd.Flags().StringP("phone","t", "","/")
+	registerCmd.Flags().StringP("email", "m", "", "/")
+	registerCmd.Flags().StringP("phone", "t", "", "/")
 }
