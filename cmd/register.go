@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"AgendaGo/service"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -30,7 +31,7 @@ var registerCmd = &cobra.Command{
 		password, _ := cmd.Flags().GetString("password")
 		email, _ := cmd.Flags().GetString("email")
 		phone, _ := cmd.Flags().GetString("phone")
-		err := RegisterUser(username, password, email, phone)
+		err := service.RegisterUser(username, password, email, phone)
 		if err != nil {
 			fmt.Println(err)
 		} else {
