@@ -17,7 +17,6 @@ package cmd
 import (
 	"AgendaGo/service"
 	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
