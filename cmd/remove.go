@@ -15,23 +15,26 @@
 package cmd
 
 import (
+	"AgendaGo/service"
 	"fmt"
-
 	"github.com/spf13/cobra"
+	"os"
 )
 
 // removeCmd represents the remove command
 var removeCmd = &cobra.Command{
-	Use:   "remove",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "delete-participator",
+	Short: "delete a participator from meeting",
+	Long:  `delete a participator from meeting`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("remove called")
+		title, _ := cmd.Flags().GetString("title")
+		participators, _ := cmd.Flags().GetStringArray("participator")
+		err := service.DeleteParticipatorFromMeeting(title, participators)
+		if err == nil {
+			fmt.Printf("Deleted participator from the meeting %s\n", title)
+		} else {
+			fmt.Fprintln(os.Stderr, "Error:", err)
+		}
 	},
 }
 
@@ -48,6 +51,6 @@ func init() {
 	// is called directly, e.g.:
 	// removeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	removeCmd.Flags().StringSliceP("participator", "p", nil, "/")
-	removeCmd.Flags().StringP("title", "t", "", "/")
+	removeCmd.Flags().StringSliceP("participator", "p", nil, "the participators of the meeting")
+	removeCmd.Flags().StringP("title", "t", "", "the title of the meeting")
 }
