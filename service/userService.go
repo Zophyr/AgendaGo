@@ -59,11 +59,49 @@ func LogoutUser() error {
 }
 
 func QueryAllUsers() ([]entity.User, error) {
-	if entity.CurrSession.CurrUser != nil {
+	if entity.CurrSession.CurrUser == nil {
 		return nil, fmt.Errorf("No one has logged in")
 	} else {
 		return entity.AllUsers.FindBy(func(user *entity.User) bool {
 			return true
 		}), nil
 	}
+}
+
+//删除用户
+
+func DeleteUser() error {
+	//检验是否登陆
+	if entity.CurrSession.CurrUser == nil {
+		return fmt.Errorf("No one has logged in")
+	}
+
+	curUserName := entity.CurrSession.GetCurUser()
+
+	meetings := entity.MeetingModel.FindBy(func(m *meeting) bool {
+		//查找删除用户作为sponsor的会议
+		if curUserName == m.Sponsor {
+			return true
+		}
+		//查找作为participator
+		for _, participator := range m.Participators {
+			if curUserName == participator {
+				return true
+			}
+		}
+		return false
+	})
+
+	//在会议中删除该用户
+	for _, meeting := range meetings {
+		err := DeleteFromMeeting(meeting.Title)
+		if err != nil {
+			return err
+		}
+	}
+
+	//成功全部处理
+	LogoutUser()
+	entity.AllUsers.DeleteUser(&entity.AllUsers.FindByName(curUserName)[0])
+	return nil
 }
