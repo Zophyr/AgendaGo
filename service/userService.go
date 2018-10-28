@@ -1,9 +1,8 @@
 package service
 
 import (
-	"entity"
+	"AgendaGo/entity"
 	"fmt"
-
 )
 
 func RegisterUser(username, password, email, phone string) error {
@@ -32,8 +31,8 @@ func RegisterUser(username, password, email, phone string) error {
 }
 
 
-//err := service.DeleteFromMeeting(title) 
-func deleteFromMeetingByTitle(title string) error{
+//err := service.DeleteFromMeetingByTitle(title) 
+func DeleteFromMeetingByTitle(title string) error{
 	if meeting,err := model.queryMeeting(title);err{
 		model.deleteMeeting(title)
 		return nil
@@ -42,6 +41,7 @@ func deleteFromMeetingByTitle(title string) error{
 		return error("no meeting to be deleted")
 	}
 }
+
 
 //service.queryMeeting(title).getParticipator().empty()
 func queryMeeting(title string) *entity.meetings{
@@ -53,6 +53,7 @@ func queryMeeting(title string) *entity.meetings{
 	return nil
 }
 
+
 func existsInParticipator(participators []string,userName string) bool{
 	for s:= range participators{
 		if userName == s{
@@ -61,6 +62,7 @@ func existsInParticipator(participators []string,userName string) bool{
 	}
 	return false
 }
+
 
 // need global variable userName indicates the current login user
 func quitMeeting(title string) error{
@@ -77,12 +79,15 @@ func quitMeeting(title string) error{
 	return error("doesnt find it")
 }
 
+
 func DeleteAllMeetings(title string) error{
-	for k,v : model,meetings{
+	for k,v := model,meetings{
 		delete(model.meetings,k)
 	}
 	return nil
 }
+
+
 func LoginUser(username, password string) error {
 
 	if entity.CurrSession.HasLoggedIn() {
@@ -101,6 +106,7 @@ func LoginUser(username, password string) error {
 	return nil
 }
 
+
 func LogoutUser() error {
 
 	if entity.CurrSession.CurrUser != nil {
@@ -110,6 +116,7 @@ func LogoutUser() error {
 		return nil
 	}
 }
+
 
 func QueryAllUsers() ([]entity.User, error) {
 	if entity.CurrSession.CurrUser != nil {
