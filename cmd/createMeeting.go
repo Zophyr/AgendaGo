@@ -15,41 +15,41 @@
 package cmd
 
 import (
+	"AgendaGo/service"
 	"fmt"
-
 	"github.com/spf13/cobra"
+	"os"
 )
 
 // createMeetingCmd represents the createMeeting command
 var createMeetingCmd = &cobra.Command{
-	Use:   "createMeeting",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Use:   "createMeeting -t [meeting title] -p [participators] -s [start time] -e [end time]", //输入格式
+	Short: "create a meeting",
+	Long:  `e.g. createMeeting -t MixShow -p a b c -s 2018-11-11/10:00 -e 2018-11-11/14:00`,
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("createMeeting called")
+	Run: func(cmd *cobra.Command, args []string) { //调用函数创建会议
+
+		theTitle, _ := cmd.Flags().GetString("title")
+		theParticipators, _ := cmd.Flags().GetStringArray("participator")
+		theStart, _ := cmd.Flags().GetString("startTime")
+		theEnd, _ := cmd.Flags().GetString("endTime")
+		//调用service 判断是否创建成功
+		err := service.AddMeeting(theTitle, theParticipators, theStart, theEnd)
+
+		if err == nil {
+			fmt.Println("Add meeting: ", theTitle, " successfully!")
+		} else {
+			fmt.Fprintln(os.Stderr, "Error: ", err)
+		}
+
 	},
 }
 
 func init() {
+
 	rootCmd.AddCommand(createMeetingCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// createMeetingCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// createMeetingCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
-	createMeetingCmd.Flags().StringP("title", "t", "", "/")
-	createMeetingCmd.Flags().StringSliceP("participator", "p", nil, "/")
-	createMeetingCmd.Flags().StringP("starttime","s","","/")
-	createMeetingCmd.Flags().StringP("endtime", "e", "", "/")
+	createMeetingCmd.Flags().StringP("title", "t", "", "title of the meeting")
+	createMeetingCmd.Flags().StringArrayP("participator", "p", nil, "participators of the meeting")
+	createMeetingCmd.Flags().StringP("startTime", "s", "", "start time of the meeting")
+	createMeetingCmd.Flags().StringP("endTime", "e", "", "end time of the meeting")
 }
