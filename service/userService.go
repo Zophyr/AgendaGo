@@ -57,3 +57,13 @@ func LogoutUser() error {
 		return nil
 	}
 }
+
+func QueryAllUsers() ([]entity.User, error) {
+	if entity.CurrSession.CurrUser != nil {
+		return nil, fmt.Errorf("No one has logged in")
+	} else {
+		return entity.AllUsers.FindBy(func(user *entity.User) bool {
+			return true
+		}), nil
+	}
+}
