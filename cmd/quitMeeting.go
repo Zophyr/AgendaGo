@@ -31,10 +31,11 @@ var quitMeetingCmd = &cobra.Command{
 		func(cmd *cobra.Command, args []string) {
 		title, _ := cmd.Flags().GetString("title")
 		err := service.DeleteFromMeeting(title) 
-		if service.queryMeeting(title).getParticipator().empty()==true{
-			service.DeleteMeetingByTitle("title")
-		}
 		if err == nil {
+			if service.queryMeeting(title).getParticipator().empty()==true{
+				service.DeleteMeetingByTitle(title)
+				fmt.Printf("delete the meeting for there's no participator\n")
+			}
 			fmt.Printf("Quited the meeting %s\n", title)
 		} else {
 			fmt.Fprintln(os.Stderr, "Error:", err)
