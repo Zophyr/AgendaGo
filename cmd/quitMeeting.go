@@ -23,15 +23,23 @@ import (
 // quitMeetingCmd represents the quitMeeting command
 var quitMeetingCmd = &cobra.Command{
 	Use:   "quitMeeting",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("quitMeeting called")
+	Short: "help the current user to quit the correctsponding meeting by its title",
+	Long: `using the input of title,adding the other which is the current userName then delete 
+	the participator of the meeting,after that check the correctsponding meeting if the participator
+	is all clear then delete the meeting`,
+	Run: 
+		func(cmd *cobra.Command, args []string) {
+		title, _ := cmd.Flags().GetString("title")
+		err := service.DeleteFromMeeting(title) 
+		if err == nil {
+			if service.queryMeeting(title).getParticipator().empty()==true{
+				service.DeleteMeetingByTitle(title)
+				fmt.Printf("delete the meeting for there's no participator\n")
+			}
+			fmt.Printf("Quited the meeting %s\n", title)
+		} else {
+			fmt.Fprintln(os.Stderr, "Error:", err)
+		}
 	},
 }
 
