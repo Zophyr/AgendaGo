@@ -91,9 +91,14 @@
 
 ### 查询会议 queryMeeting
 
-**相关参数**
 
-/
+1. 会议名称
+  - title
+  - t
+
+functionality:
+    input: title
+    output: print detail of meeting on the screen
 
 ### 取消会议 deleteMeeting
 
