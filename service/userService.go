@@ -1,8 +1,9 @@
 package service
 
 import (
-	"AgendaGo/entity"
+	"entity"
 	"fmt"
+
 )
 
 func RegisterUser(username, password, email, phone string) error {
@@ -30,6 +31,58 @@ func RegisterUser(username, password, email, phone string) error {
 	return nil
 }
 
+
+//err := service.DeleteFromMeeting(title) 
+func deleteFromMeetingByTitle(title string) error{
+	if meeting,err := model.queryMeeting(title);err{
+		model.deleteMeeting(title)
+		return nil
+	}else
+	{
+		return error("no meeting to be deleted")
+	}
+}
+
+//service.queryMeeting(title).getParticipator().empty()
+func queryMeeting(title string) *entity.meetings{
+	for k,v := model.meetings{
+		if k == string{
+			return v
+		}
+	}
+	return nil
+}
+
+func existsInParticipator(participators []string,userName string) bool{
+	for s:= range participators{
+		if userName == s{
+			return true
+		}
+	}
+	return false
+}
+
+// need global variable userName indicates the current login user
+func quitMeeting(title string) error{
+	for k,v := model.meetings{
+		if k == title && existsInParticipator(v.participators,userName){
+			for i:=0;i<len(v.participators);i++{
+				if(v.participators[i]==userName){
+					v.participators = append(v.participators[:i]+v.participators[i+1:])
+					return nil
+				}
+			}
+		}
+	}
+	return error("doesnt find it")
+}
+
+func DeleteAllMeetings(title string) error{
+	for k,v : model,meetings{
+		delete(model.meetings,k)
+	}
+	return nil
+}
 func LoginUser(username, password string) error {
 
 	if entity.CurrSession.HasLoggedIn() {
