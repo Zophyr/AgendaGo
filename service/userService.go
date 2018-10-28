@@ -29,3 +29,21 @@ func RegisterUser(username, password, email, phone string) error {
 
 	return nil
 }
+
+func LoginUser(username, password string) error {
+
+	if entity.CurrSession.HasLoggedIn() {
+		return fmt.Errorf("You have been logged in")
+	}
+
+	isMatch, err := entity.AllUsers.IsMatchNamePass(username, password)
+	if err != nil {
+		return err
+	}
+	if !isMatch {
+		return fmt.Errorf("Wrong password")
+	}
+
+	entity.CurrSession.CurrUser = &entity.AllUsers.FindByName(username)[0]
+	return nil
+}
