@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -26,13 +27,12 @@ var queryMeetingCmd = &cobra.Command{
 	Short: "query the meeting by its title",
 	Long: `input is the title,then return the class of the meeting which include
 	 date and participator`,
-	Run: 		
-		func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, args []string) {
 		title, _ := cmd.Flags().GetString("title")
-		meeting,err := service.queryMeeting(title) 
+		meeting, err := service.QueryMeeting(title)
 		if err == nil {
-			s := "meeting title:" + title +"\n meeting participator"
-			+ meeting.getParticipator()//wait for more params of meeting
+			s := "meeting title:" + title + "\n meeting participator"
+			+meeting.getParticipator() //wait for more params of meeting
 			fmt.Println(s)
 		} else {
 			fmt.Fprintln(os.Stderr, "Error:", err)

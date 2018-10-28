@@ -44,7 +44,7 @@ func DeleteFromMeetingByTitle(title string) error{
 
 
 //service.queryMeeting(title).getParticipator().empty()
-func queryMeeting(title string) *entity.meetings{
+func QueryMeeting(title string) *entity.meetings{
 	for k,v := model.meetings{
 		if k == string{
 			return v
