@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -24,13 +25,13 @@ import (
 var deleteMeetingCmd = &cobra.Command{
 	Use:   "deleteMeeting",
 	Short: "delete the meeting",
-	Long: `input is the title,then according to the input to delete the meeting`,
+	Long:  `input is the title,then according to the input to delete the meeting`,
 	Run: func(cmd *cobra.Command, args []string) {
 		title, _ := cmd.Flags().GetString("title")
-		err := service.deleteMeetingByTitle(title)
-		if(err == nil){
-			fmt.Printf("delete the meeting:%s\n",title)
-		}else{
+		err := service.DeleteMeetingByTitle(title)
+		if err == nil {
+			fmt.Printf("delete the meeting:%s\n", title)
+		} else {
 			fmt.Fprintln(os.Stderr, "Error:", err)
 		}
 	},

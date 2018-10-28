@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+
 type Meeting struct {
 	Title         string   `json:"tile"`
 	Sponsor       string   `json:"sponsor"`
