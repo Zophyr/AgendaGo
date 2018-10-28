@@ -23,15 +23,16 @@ import (
 // deleteMeetingCmd represents the deleteMeeting command
 var deleteMeetingCmd = &cobra.Command{
 	Use:   "deleteMeeting",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "delete the meeting",
+	Long: `input is the title,then according to the input to delete the meeting`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("deleteMeeting called")
+		title, _ := cmd.Flags().GetString("title")
+		err := service.deleteMeetingByTitle(title)
+		if(err == nil){
+			fmt.Printf("delete the meeting:%s\n",title)
+		}else{
+			fmt.Fprintln(os.Stderr, "Error:", err)
+		}
 	},
 }
 
