@@ -11,14 +11,25 @@ type Meeting struct {
 	EndDate       string   `json:"endDate"`
 }
 
+type meetingDb struct {
+	Data []Meeting `json:"data"`
+}
+
 type meetingModel struct {
+	storage
 	meetings map[string] *Meeting
 }
 
 var MeetingModel meetingModel
 
+func (model *meetingModel) Init() {      // meeting call this function in the root cmd
+	model.path = "../data/meeting.json"
+	model.meetings = make(map[string]*Meeting)
+	model.load()
+}
 
 func (model *meetingModel) AddMeeting(meeting *Meeting) {
+	defer model.dump()
 	_, ok := model.meetings[meeting.Title]
 	if ok == false {
 		model.meetings[meeting.Title] = meeting
@@ -29,6 +40,7 @@ func (model *meetingModel) AddMeeting(meeting *Meeting) {
 }
 
 func (model *meetingModel) queryMeeting(title string) (* Meeting,bool){
+	defer model.dump()
 	_,ok := model.meetings[title]
 	if ok == true{
 		return model.meetings[title],true
@@ -43,6 +55,7 @@ func (meeting * Meeting) getParticipator() []string{
 }
 
 func (model *meetingModel) deleteMeeting(title string) bool{
+	defer model.dump()
 	if _,ok := model.meetings[title];ok{
 		delete(model.meetings,title)
 		return true
@@ -51,4 +64,21 @@ func (model *meetingModel) deleteMeeting(title string) bool{
 		fmt.Println(os.Stderr,"error:%s\n","no such meeting to delete")
 		return false
 	}
+}
+
+
+func (model *meetingModel) load() {
+	var meetingDb meetingDb
+	model.storage.load(&meetingDb)
+	for index, meeting := range meetingDb.Data {
+		model.meetings[meeting.Title] = &meetingDb.Data[index]
+	}
+}
+
+func (model *meetingModel) dump() {
+	var meetingDb meetingDb
+	for _, meeting := range model.meetings {
+		meetingDb.Data = append(meetingDb.Data, *meeting)
+	}
+	model.storage.dump(&meetingDb)
 }
