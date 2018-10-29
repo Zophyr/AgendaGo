@@ -48,6 +48,6 @@ func init() {
 	// is called directly, e.g.:
 	// removeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	removeCmd.Flags().StringSliceP("participator", "p", nil, "/")
-	removeCmd.Flags().StringP("title", "t", "", "/")
+	removeCmd.Flags().StringSliceP("participator", "p", nil, "参加者（多个参与者使用 , 分隔）")
+	removeCmd.Flags().StringP("title", "t", "", "会议主题")
 }

@@ -48,8 +48,8 @@ func init() {
 	// is called directly, e.g.:
 	// createMeetingCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	createMeetingCmd.Flags().StringP("title", "t", "", "/")
-	createMeetingCmd.Flags().StringSliceP("participator", "p", nil, "/")
-	createMeetingCmd.Flags().StringP("starttime","s","","/")
-	createMeetingCmd.Flags().StringP("endtime", "e", "", "/")
+	createMeetingCmd.Flags().StringP("title", "t", "", "会议主题")
+	createMeetingCmd.Flags().StringSliceP("participator", "p", nil, "参加者（多个参与者使用 , 分隔）")
+	createMeetingCmd.Flags().StringP("starttime","s","","开始时间（格式XXXX-XXX-XX/XX:XX:XX, 24小时制）")
+	createMeetingCmd.Flags().StringP("endtime", "e", "", "结束时间（格式XXXX-XXX-XX/XX:XX:XX, 24小时制）")
 }

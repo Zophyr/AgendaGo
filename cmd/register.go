@@ -49,8 +49,8 @@ func init() {
 	// is called directly, e.g.:
 	// registerCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	
-	registerCmd.Flags().StringP("username", "u", "", "/")
-	registerCmd.Flags().StringP("password", "p", "", "/")
-	registerCmd.Flags().StringP("email", "m", "","/")
-	registerCmd.Flags().StringP("phone","t", "","/")
+	registerCmd.Flags().StringP("username", "u", "", "用户名")
+	registerCmd.Flags().StringP("password", "p", "", "密码")
+	registerCmd.Flags().StringP("email", "m", "","邮箱")
+	registerCmd.Flags().StringP("phone","t", "","电话")
 }

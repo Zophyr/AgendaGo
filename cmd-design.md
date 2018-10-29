@@ -159,13 +159,12 @@ $ AgendaGo queryMeeting [flags]
 ```
 
 ### 命令参数 flags
-- -t, --title           string      会议主题
 - -h, --help                        帮助
 
 ### 实例
 
 ```shell
-$ AgendaGo queryMeeting -t testMeeting01
+$ AgendaGo queryMeeting
 ```
 
 ## 取消会议 deleteMeeting

@@ -48,5 +48,5 @@ func init() {
 	// is called directly, e.g.:
 	// quitMeetingCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	quitMeetingCmd.Flags().StringP("title", "t", "", "/")
+	quitMeetingCmd.Flags().StringP("title", "t", "", "会议主题")
 }
