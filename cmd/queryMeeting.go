@@ -16,8 +16,7 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-
+	"service"
 	"github.com/spf13/cobra"
 )
 
