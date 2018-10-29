@@ -22,6 +22,12 @@ type Users struct {
 
 var AllUsers Users
 
+func (allusers *Users) Init() {      // meeting call this function in the root cmd
+	allusers.storage.path = "../data/user.json"
+	allusers.meetings = make(map[string]*User)
+	allusers.load()
+}
+
 func (allUsers *Users) AddUser(user *User) {
 	defer allUsers.dump()
 	allUsers.users[user.Username] = user

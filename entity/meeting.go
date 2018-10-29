@@ -23,7 +23,7 @@ type meetingModel struct {
 var MeetingModel meetingModel
 
 func (model *meetingModel) Init() {      // meeting call this function in the root cmd
-	model.path = "../data/meeting.json"
+	model.storage.path = "../data/meeting.json"
 	model.meetings = make(map[string]*Meeting)
 	model.load()
 }
