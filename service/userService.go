@@ -1,7 +1,7 @@
 package service
 
 import (
-	"entity"
+	"Agenda/entity"
 	"fmt"
 
 )
