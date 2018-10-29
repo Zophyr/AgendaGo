@@ -9,3 +9,7 @@ var CurrSession Session
 func (currSession *Session) HasLoggedIn() bool {
 	return currSession.CurrUser != nil
 }
+
+func (currSession *Session) GetCurUser() string {
+	return currSession.CurrUser.Username
+}

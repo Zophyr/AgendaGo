@@ -15,25 +15,26 @@
 package cmd
 
 import (
+	"AgendaGo/service"
 	"fmt"
-
 	"github.com/spf13/cobra"
+	"os"
 )
 
 // addCmd represents the add command
 var addCmd = &cobra.Command{
-	Use:   "add",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "add-participator",
+	Short: "add a participator to a meeting",
+	Long:  `add a existed participator to a meeting`,
 	Run: func(cmd *cobra.Command, args []string) {
-		participator, _ := cmd.Flags().GetString("participator")
 		title, _ := cmd.Flags().GetString("title")
-		fmt.Println("add called")
+		participators, _ := cmd.Flags().GetStringArray("participator")
+		err := service.AddParticipatorToMeeting(title, participators)
+		if err == nil {
+			fmt.Printf("Added participator to the meeting %s\n", title)
+		} else {
+			fmt.Fprintln(os.Stderr, "Error:", err)
+		}
 	},
 }
 
@@ -50,6 +51,6 @@ func init() {
 	// is called directly, e.g.:
 	// addCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	addCmd.Flags().StringSliceP("participator", "p", nil, "/")
-	addCmd.Flags().StringP("title", "t", "", "/")
+	addCmd.Flags().StringSliceP("participator", "p", nil, "the new participator of the meeting")
+	addCmd.Flags().StringP("title", "t", "", "the title of the meeting")
 }

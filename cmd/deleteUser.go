@@ -15,36 +15,28 @@
 package cmd
 
 import (
+	"AgendaGo/service"
 	"fmt"
-
 	"github.com/spf13/cobra"
+	"os"
 )
 
 // deleteUserCmd represents the deleteUser command
 var deleteUserCmd = &cobra.Command{
 	Use:   "deleteUser",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "delete one account of Agenda and log out",
+	Long:  `delete one account of Agenda and log out.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("deleteUser called")
+		//fmt.Println("deleteUser called")
+		err := service.DeleteUser()
+		if err == nil {
+			fmt.Println("The account has been deleted successfully")
+		} else {
+			fmt.Fprintln(os.Stderr, "Error:", err)
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(deleteUserCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// deleteUserCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// deleteUserCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
