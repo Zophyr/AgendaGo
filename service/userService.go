@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// user register
 func RegisterUser(username, password, email, phone string) error {
 
 	// check if any information is empty
@@ -12,6 +13,7 @@ func RegisterUser(username, password, email, phone string) error {
 		return fmt.Errorf("One of your information is empty")
 	}
 
+	// check if has been register
 	if entity.AllUsers.FindBy(func(user *entity.User) bool {
 		return username == user.Username
 	}) != nil {
@@ -30,22 +32,99 @@ func RegisterUser(username, password, email, phone string) error {
 	return nil
 }
 
+// user login
+func LoginUser(username, password string) error {
 
-//err := service.DeleteFromMeetingByTitle(title) 
-func DeleteFromMeetingByTitle(title string) error{
-	if meeting,err := model.queryMeeting(title);err{
-		model.deleteMeeting(title)
+	// check if someone has been logged in
+	if entity.CurrSession.HasLoggedIn() {
+		return fmt.Errorf("You have been logged in")
+	}
+
+	// check whether the username and password are correct or not
+	isMatch, err := entity.AllUsers.IsMatchNamePass(username, password)
+	if err != nil {
+		return err
+	}
+	if !isMatch {
+		return fmt.Errorf("Wrong password")
+	}
+
+	// set the current user in the current session
+	entity.CurrSession.CurrUser = &entity.AllUsers.FindByName(username)[0]
+	return nil
+}
+
+
+// user logout
+func LogoutUser() error {
+
+	// check if someone is logged in
+	if entity.CurrSession.CurrUser != nil {
+		return fmt.Errorf("No one has logged in")
+	} else {
+		// clear the current user
+		entity.CurrSession.CurrUser = nil
 		return nil
-	}else
-	{
-		return error("no meeting to be deleted")
 	}
 }
 
 
-//service.queryMeeting(title).getParticipator().empty()
-func QueryMeeting(title string) *entity.meetings{
-	for k,v := model.meetings{
+// list all users
+func QueryAllUsers() ([]entity.User, error) {
+	
+	// check if someone is logged in
+	if entity.CurrSession.CurrUser == nil {
+		return nil, fmt.Errorf("No one has logged in")
+	} else {
+		return entity.AllUsers.FindBy(func(user *entity.User) bool {
+			return true
+		}), nil
+	}
+}
+
+
+// delete a user
+func DeleteUser() error {
+
+	// check if someone is logged in
+	if entity.CurrSession.CurrUser == nil {
+		return fmt.Errorf("No one has logged in")
+	}
+
+	curUserName := entity.CurrSession.GetCurUserName()
+
+	meetings := entity.AllMeetings.FindBy(func(m *meeting) bool {
+		//查找删除用户作为sponsor的会议
+		if curUserName == m.Sponsor {
+			return true
+		}
+		//查找作为participator
+		for _, participator := range m.Participators {
+			if curUserName == participator {
+				return true
+			}
+		}
+		return false
+	})
+
+	//在会议中删除该用户
+	for _, meeting := range meetings {
+		err := DeleteFromMeeting(meeting.Title)
+		if err != nil {
+			return err
+		}
+	}
+
+	//成功全部处理
+	LogoutUser()
+	entity.AllUsers.DeleteUser(&entity.AllUsers.FindByName(curUserName)[0])
+	return nil
+}
+
+
+// list 
+func QueryMeeting(title string) *entity.Meetings{
+	for k,v := entity.AllMeetings.meetings{
 		if k == string{
 			return v
 		}
@@ -84,84 +163,5 @@ func DeleteAllMeetings(title string) error{
 	for k,v := model,meetings{
 		delete(model.meetings,k)
 	}
-	return nil
-}
-
-
-func LoginUser(username, password string) error {
-
-	if entity.CurrSession.HasLoggedIn() {
-		return fmt.Errorf("You have been logged in")
-	}
-
-	isMatch, err := entity.AllUsers.IsMatchNamePass(username, password)
-	if err != nil {
-		return err
-	}
-	if !isMatch {
-		return fmt.Errorf("Wrong password")
-	}
-
-	entity.CurrSession.CurrUser = &entity.AllUsers.FindByName(username)[0]
-	return nil
-}
-
-
-func LogoutUser() error {
-
-	if entity.CurrSession.CurrUser != nil {
-		return fmt.Errorf("No one has logged in")
-	} else {
-		entity.CurrSession.CurrUser = nil
-		return nil
-	}
-}
-
-
-func QueryAllUsers() ([]entity.User, error) {
-	if entity.CurrSession.CurrUser == nil {
-		return nil, fmt.Errorf("No one has logged in")
-	} else {
-		return entity.AllUsers.FindBy(func(user *entity.User) bool {
-			return true
-		}), nil
-	}
-}
-
-//删除用户
-
-func DeleteUser() error {
-	//检验是否登陆
-	if entity.CurrSession.CurrUser == nil {
-		return fmt.Errorf("No one has logged in")
-	}
-
-	curUserName := entity.CurrSession.GetCurUser()
-
-	meetings := entity.MeetingModel.FindBy(func(m *meeting) bool {
-		//查找删除用户作为sponsor的会议
-		if curUserName == m.Sponsor {
-			return true
-		}
-		//查找作为participator
-		for _, participator := range m.Participators {
-			if curUserName == participator {
-				return true
-			}
-		}
-		return false
-	})
-
-	//在会议中删除该用户
-	for _, meeting := range meetings {
-		err := DeleteFromMeeting(meeting.Title)
-		if err != nil {
-			return err
-		}
-	}
-
-	//成功全部处理
-	LogoutUser()
-	entity.AllUsers.DeleteUser(&entity.AllUsers.FindByName(curUserName)[0])
 	return nil
 }
