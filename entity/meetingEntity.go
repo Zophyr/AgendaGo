@@ -19,8 +19,7 @@ type Meetings struct {
 
 var AllMeetings Meetings
 
-//找到所有符合条件的会议
-//使用filter来实现
+// use a filter to find appropriate meetings
 func (allMeetings *Meetings) FindBy(cond func(*Meeting) bool) []Meeting {
 	result := []Meeting{}
 	for _, meeting := range allMeetings.meetings {
@@ -31,8 +30,10 @@ func (allMeetings *Meetings) FindBy(cond func(*Meeting) bool) []Meeting {
 	return result
 }
 
-func (allMeetings *Meetings) FindByTitle(meetingname string) *Meeting {
-	return allMeetings.meetings[meetingname]
+func (allMeetings *Meetings) FindByTitle(title string) []Meeting {
+	return allMeetings.FindBy(func(meeting *Meeting) bool {
+		return title == meeting.Title
+	})
 }
 
 //删除与会者

@@ -25,6 +25,7 @@ func (allUsers *Users) DeleteUser(user *User) {
 	delete(allUsers.users, user.Username)
 }
 
+// use a filter to find appropriate users
 func (allUsers *Users) FindBy(cond func(*User) bool) []User {
 	result := []User{}
 	for _, user := range allUsers.users {
