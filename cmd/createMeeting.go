@@ -17,8 +17,8 @@ package cmd
 import (
 	"AgendaGo/service"
 	"fmt"
+
 	"github.com/spf13/cobra"
-	"os"
 )
 
 // createMeetingCmd represents the createMeeting command
@@ -34,12 +34,12 @@ var createMeetingCmd = &cobra.Command{
 		theStart, _ := cmd.Flags().GetString("startTime")
 		theEnd, _ := cmd.Flags().GetString("endTime")
 		//调用service 判断是否创建成功
-		err := service.AddMeeting(theTitle, theParticipators, theStart, theEnd)
+		err := service.AddMeetingToCurrSession(theTitle, theParticipators, theStart, theEnd)
 
 		if err == nil {
 			fmt.Println("Add meeting: ", theTitle, " successfully!")
 		} else {
-			fmt.Fprintln(os.Stderr, "Error: ", err)
+			fmt.Fprintln(err)
 		}
 
 	},
