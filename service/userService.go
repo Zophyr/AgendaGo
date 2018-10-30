@@ -93,13 +93,13 @@ func DeleteUser() error {
 
 	curUserName := entity.CurrSession.GetCurUserName()
 
-	meetings := entity.AllMeetings.FindBy(func(m *meeting) bool {
-		//查找删除用户作为sponsor的会议
-		if curUserName == m.Sponsor {
+	meetings := entity.AllMeetings.FindBy(func(meeting *Meeting) bool {
+		// find the meeting whose sponsor is currUser
+		if curUserName == meeting.Sponsor {
 			return true
 		}
-		//查找作为participator
-		for _, participator := range m.Participators {
+		// fint the meeting which currUser participates in
+		for _, participator := range meeting.Participators {
 			if curUserName == participator {
 				return true
 			}
@@ -107,7 +107,7 @@ func DeleteUser() error {
 		return false
 	})
 
-	//在会议中删除该用户
+	// delete the meeting
 	for _, meeting := range meetings {
 		err := DeleteFromMeeting(meeting.Title)
 		if err != nil {

@@ -17,6 +17,7 @@ package cmd
 import (
 	"AgendaGo/service"
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -39,7 +40,7 @@ var createMeetingCmd = &cobra.Command{
 		if err == nil {
 			fmt.Println("Add meeting: ", theTitle, " successfully!")
 		} else {
-			fmt.Fprintln(err)
+			fmt.Fprintln(os.Stderr, "Error:", err)
 		}
 
 	},

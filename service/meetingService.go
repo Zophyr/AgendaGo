@@ -54,7 +54,7 @@ func DeleteFromMeeting(title string) error {
 
 // delete the meeting whose name is title
 func DeleteFromMeetingByTitle(title string) error {
-	if meeting, err := entity.queryMeeting(title); err == nil {
+	if meeting, err := entity.QueryMeeting(title); err == nil {
 		entity.DeleteMeeting(title)
 		return nil
 	} else {

@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -33,7 +34,7 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := service.LoginoutUser()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, "Error:", err)
 		} else {
 			fmt.Println(username + " logins out successful")
 		}

@@ -13,6 +13,11 @@ type Meeting struct {
 	EndDate       string   `json:"endDate"`
 }
 
+type meetingDb struct {
+	storage
+	Data []Meeting `json:"data"`
+}
+
 type Meetings struct {
 	meetings map[string]*Meeting
 }
@@ -20,10 +25,13 @@ type Meetings struct {
 var AllMeetings Meetings
 
 func (allMeetings *Meetings) AddMeeting(meeting *Meeting) {
+	defer allMeetings.dump()
 	allMeetings.meetings[meeting.Title] = meeting
 }
 
-func (allMeetings *Meetings) DeleteMeeting(meeting *Meeting) {
+func (allMeetings *Meetings) DeleteMeeting(meeting *Meeting) error {
+	defer allMeetings.dump()
+
 	delete(allMeetings.meetings, meeting.Title)
 }
 
@@ -63,9 +71,10 @@ func (allMeetings *Meetings) AddParticipatorToMeeting(meeting *Meeting, particip
 	allMeetings.meetings[meeting.Title].Participators = append(curMeetingParticipators, participator)
 }
 
-func (allMeetings *Meetings) queryMeeting(title string) (*Meeting, bool) {
-	_, ok := allMeetings.meetings[title]
-	if ok == true {
+func (allMeetings *Meetings) QueryMeeting(title string) (*Meeting, bool) {
+	defer allMeetings.dump()
+	_, err := allMeetings.meetings[title]
+	if err != nil {
 		return allMeetings.meetings[title], true
 	} else {
 		fmt.Println(os.Stderr, "Error:%s", "no such meeting")
@@ -75,4 +84,26 @@ func (allMeetings *Meetings) queryMeeting(title string) (*Meeting, bool) {
 
 func (meeting *Meeting) getParticipator() []string {
 	return meeting.Participators
+}
+
+func (allMeetings *Meetings) load() {
+	var meetingDb meetingDb
+	allMeetings.storage.load(&meetingDb)
+	for index, meeting := range meetingDb.Data {
+		allMeetings.meetings[meeting.Title] = &meetingDb.Data[index]
+	}
+}
+
+func (allMeetings *Meetings) dump() {
+	var meetingDb meetingDb
+	for _, meeting := range allMeetings.meetings {
+		meetingDb.Data = append(meetingDb.Data, *meeting)
+	}
+	allMeetings.storage.dump(&meetingDb)
+}
+
+func (allMeetings *Meetings) Init() { // meeting call this function in the root cmd
+	allMeetings.storage.path = "../data/meeting.json"
+	allMeetings.meetings = make(map[string]*Meeting)
+	allMeetings.load()
 }
