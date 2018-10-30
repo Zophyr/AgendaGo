@@ -12,40 +12,62 @@ const timeFormat = "2018-10-28/13:08:22"
 
 func validateNewMeeting(meeting *meeting) error {
 
-	if err := validateNewTimeInterval(meeting.StartTime, meeting.EndTime); err != nil {
-		return err
+	if len(meeting.StartDate) == 0 {
+		return fmt.Errorf("Start time is empty")
+	}
+	_, err := time.Parse(timeFormat, meeting.StartDate)
+
+	if err != nil {
+		return fmt.Errorf("StartTime format is illegal")
 	}
 
-	if flag, err := validateNewMeetingTime(meeting); !flag {
-		return err
+	if len(meeting.EndDate) == 0 {
+		return fmt.Errorf("End time is empty")
+	}
+	_, err = time.Parse(timeFormat, meeting.EndDate)
+
+	if err != nil {
+		return fmt.Errorf("EndTime format is illegal")
+	}
+
+	if meeting.StartDate > meeting.EndDate {
+		return fmt.Errorf("StartTime is after EndTime")
+	}
+
+	results := entity.AllMeetings.FindBy(func(meeting *Meeting) bool {
+		if meeting.Speecher == newMeeting.Speecher {
+			return true
+		}
+		for _, participator := range meeting.Participators {
+			if participator == newMeeting.Speecher {
+				return true
+			}
+		}
+		return false
+	})
+
+	for _, participatorName := range newMeeting.Participators {
+		results = append(results, entity.MeetingModel.FindBy(func(m *meeting) bool {
+			if m.Speecher == participatorName {
+				return true
+			}
+			for _, participator := range m.Participators {
+				if participator == participatorName {
+					return true
+				}
+			}
+			return false
+		})...)
+	}
+
+	for _, meeting := range meetings {
+		if endTime > meeting.StartTime && meeting.EndTime > startTime {
+			return fmt.Errorf("Conflit with meeting %s", meeting.Title)
+		}
 	}
 
 	return nil
-}
 
-func validateNewTimeInterval(startTime string, endTime string) error {
-	if len(startTime) == 0 {
-		return fmt.Errorf("Empty start time")
-	}
-	_, err := time.Parse(timeFormat, startTime)
-
-	if err != nil {
-		return fmt.Errorf("Illegal StartTime format")
-	}
-
-	if len(endTime) == 0 {
-		return fmt.Errorf("Empty end time")
-	}
-	_, err = time.Parse(timeFormat, endTime)
-
-	if err != nil {
-		return fmt.Errorf("Illegal EndTime format")
-	}
-
-	if startTime > endTime {
-		return fmt.Errorf("StartTime is after the EndTime")
-	}
-	return nil
 }
 
 func AddMeetingToCurrSession(title string, participatorName []string, startTime string, endTime string) error {
