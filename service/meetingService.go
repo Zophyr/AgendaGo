@@ -34,7 +34,7 @@ func validateNewMeeting(meeting *meeting) error {
 		return fmt.Errorf("StartTime is after EndTime")
 	}
 
-	results := entity.AllMeetings.FindBy(func(meeting *Meeting) bool {
+	meetings := entity.AllMeetings.FindBy(func(meeting *Meeting) bool {
 		if meeting.Speecher == newMeeting.Speecher {
 			return true
 		}
@@ -162,7 +162,7 @@ func DeleteParticipatorFromMeeting(title string, participatorNames []string) err
 	for _, participatorName := range participatorNames {
 		participator := entity.AllUsers.FindByName(participatorName)
 		if participator == nil {
-			return fmt.Errorf("Participator %s doesn't exist", participatorName)
+			return fmt.Errorf("User %s doesn't exist", participatorName)
 		}
 
 		flag := false
@@ -185,46 +185,44 @@ func DeleteParticipatorFromMeeting(title string, participatorNames []string) err
 	return nil
 }
 
-//增加与会者
 func AddParticipatorToMeeting(title string, participatorNames []string) error {
-	//登陆检查
+
 	if !entity.CurrSession.HasLoggedIn() {
 		return fmt.Errorf("No one has logged in")
 	}
-	curMeeting := entity.MeetingModel.FindByTitle(title)
-	if curMeeting == nil {
+
+	targetMeeting := entity.AllMeetings.FindByTitle(title)
+	if targetMeeting == nil {
 		return fmt.Errorf("Meeting %s doesn't exist", title)
 	}
 
 	for _, participatorName := range participatorNames {
 		participator := entity.AllUsers.FindByName(participatorName)
 		if participator == nil {
-			return fmt.Errorf("Participator %s doesn't exist", participatorName)
+			return fmt.Errorf("User %s doesn't exist", participatorName)
 		}
-		//不处理
-		// results := entity.MeetingModel.FindBy(func(m *meeting) bool {
-		// 	// check from speecher field
-		// 	if m.Sponsor == participatorName {
-		// 		return true
-		// 	}
-		// 	// check from participator field
-		// 	for _, participator := range m.Participators {
-		// 		if participator == participatorName {
-		// 			return true
-		// 		}
-		// 	}
-		// 	return false
-		// })
 
-		// _, err := validateFreeTime(curMeeting.StartTime, curMeeting.EndTime, results)
-		// if err != nil {
-		// 	return err
-		// }
+		meetings := entity.AllMeetings.FindBy(func(meeting *Meeting) bool {
+			if meeting.Speecher == participatorName {
+				return true
+			}
+			for _, pName := range meeting.Participators {
+				if pName == participatorName {
+					return true
+				}
+			}
+			return false
+		})
 
+		for _, meeting := range meetings {
+			if targetMeeting.EndDate > meeting.StartDate && meeting.EndDate > targetMeeting.StartDate {
+				return fmt.Errorf("Conflit with meeting %s", meeting.Title)
+			}
+		}
 	}
 
 	for _, participatorName := range participatorNames {
-		entity.MeetingModel.AddParticipatorToMeeting(curMeeting, participatorName)
+		entity.AllMeetings.AddParticipatorToMeeting(curMeeting, participatorName)
 	}
 
 	return nil
