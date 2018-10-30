@@ -29,9 +29,8 @@ func (allMeetings *Meetings) AddMeeting(meeting *Meeting) {
 	allMeetings.meetings[meeting.Title] = meeting
 }
 
-func (allMeetings *Meetings) DeleteMeeting(meeting *Meeting) error {
+func (allMeetings *Meetings) DeleteMeeting(meeting *Meeting) {
 	defer allMeetings.dump()
-
 	delete(allMeetings.meetings, meeting.Title)
 }
 
@@ -61,6 +60,9 @@ func (allMeetings *Meetings) DeleteParticipatorFromMeeting(meeting *Meeting, par
 			curMeetingParticipators = append(curMeetingParticipators[:i], curMeetingParticipators[i+1:]...)
 			break
 		}
+	}
+	if len(curMeetingParticipators) == 0 {
+		delete(allMeetings.meetings, meeting.Title)
 	}
 	allMeetings.meetings[meeting.Title].Participators = curMeetingParticipators
 }

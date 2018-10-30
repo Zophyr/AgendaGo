@@ -1,9 +1,5 @@
 package entity
 
-import (
-	"fmt"
-)
-
 type User struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -55,12 +51,9 @@ func (allUsers *Users) FindByName(username string) []User {
 	})
 }
 
-func (allUsers *Users) IsMatchNamePass(username, password string) (bool, error) {
+func (allUsers *Users) IsMatchNamePass(username, password string) bool {
 	result := allUsers.FindByName(username)
-	if len(result) == 0 {
-		return false, fmt.Errorf("The user doesn't exist")
-	}
-	return result[0].Password == password, nil
+	return result[0].Password == password
 }
 
 func (allusers *User) load() {

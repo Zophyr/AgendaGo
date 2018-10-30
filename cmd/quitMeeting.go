@@ -16,7 +16,9 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"service"
+
 	"github.com/spf13/cobra"
 )
 
@@ -27,13 +29,11 @@ var quitMeetingCmd = &cobra.Command{
 	Long: `using the input of title,adding the other which is the current userName then delete 
 	the participator of the meeting,after that check the correctsponding meeting if the participator
 	is all clear then delete the meeting`,
-	Run: 
-		func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, args []string) {
 		title, _ := cmd.Flags().GetString("title")
-		err := service.DeleteFromMeeting(title) 
+		err := service.DeleteFromMeeting(title)
 		if err == nil {
-			if service.queryMeeting(title).getParticipator().empty()==true{
-				service.quitMeeting(title)
+			if service.queryMeeting(title).getParticipator().empty() == true {
 				fmt.Printf("delete the meeting for there's no participator\n")
 			}
 			fmt.Printf("Quited the meeting %s\n", title)
