@@ -15,8 +15,10 @@
 package cmd
 
 import (
+	"AgendaGo/service"
 	"fmt"
-	"service"
+	"os"
+
 	"github.com/spf13/cobra"
 )
 
@@ -29,7 +31,7 @@ var deleteMeetingCmd = &cobra.Command{
 		title, _ := cmd.Flags().GetString("title")
 		err := service.DeleteMeetingByTitle(title)
 		if err == nil {
-			fmt.Printf("delete the meeting:%s\n", title)
+			fmt.Printf("delete the %s meeting successfully\n", title)
 		} else {
 			fmt.Fprintln(os.Stderr, "Error:", err)
 		}

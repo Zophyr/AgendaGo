@@ -15,8 +15,10 @@
 package cmd
 
 import (
+	"AgendaGo/service"
 	"fmt"
-	"service"
+	"os"
+
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +26,7 @@ import (
 var clearMeetingCmd = &cobra.Command{
 	Use:   "clearMeeting",
 	Short: "clear all the meeting",
-	Long: `by running this clear all the register meeting.`,
+	Long:  `by running this clear all the register meeting.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := service.DeleteAllMeeting()
 		if err == nil {

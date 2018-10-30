@@ -13,11 +13,27 @@ type Meeting struct {
 	EndDate       string   `json:"endDate"`
 }
 
+type meetingDb struct {
+	storage
+	Data []Meeting `json:"data"`
+}
+
 type Meetings struct {
 	meetings map[string]*Meeting
 }
 
 var AllMeetings Meetings
+
+func (allMeetings *Meetings) AddMeeting(meeting *Meeting) {
+	defer allMeetings.dump()
+	allMeetings.meetings[meeting.Title] = meeting
+}
+
+func (allMeetings *Meetings) DeleteMeeting(meeting *Meeting) error {
+	defer allMeetings.dump()
+
+	delete(allMeetings.meetings, meeting.Title)
+}
 
 // use a filter to find appropriate meetings
 func (allMeetings *Meetings) FindBy(cond func(*Meeting) bool) []Meeting {
@@ -36,7 +52,7 @@ func (allMeetings *Meetings) FindByTitle(title string) []Meeting {
 	})
 }
 
-//删除与会者
+// delete a participator
 func (allMeetings *Meetings) DeleteParticipatorFromMeeting(meeting *Meeting, participator string) {
 
 	curMeetingParticipators := allMeetings.meetings[meeting.Title].Participators
@@ -49,25 +65,16 @@ func (allMeetings *Meetings) DeleteParticipatorFromMeeting(meeting *Meeting, par
 	allMeetings.meetings[meeting.Title].Participators = curMeetingParticipators
 }
 
-//增加与会者
+// add a participator
 func (allMeetings *Meetings) AddParticipatorToMeeting(meeting *Meeting, participator string) {
 	curMeetingParticipators := allMeetings.meetings[meeting.Title].Participators
 	allMeetings.meetings[meeting.Title].Participators = append(curMeetingParticipators, participator)
 }
 
-func (allMeetings *Meetings) AddMeeting(meeting *Meeting) {
-	_, ok := allMeetings.meetings[meeting.Title]
-	if ok == false {
-		allMeetings.meetings[meeting.Title] = meeting
-		fmt.Printf("adding meeting : %s\n", meeting.Title)
-	} else {
-		fmt.Println(os.Stderr, "Error:%s", "already exists a meeting with the same title")
-	}
-}
-
-func (allMeetings *Meetings) queryMeeting(title string) (*Meeting, bool) {
-	_, ok := allMeetings.meetings[title]
-	if ok == true {
+func (allMeetings *Meetings) QueryMeeting(title string) (*Meeting, bool) {
+	defer allMeetings.dump()
+	_, err := allMeetings.meetings[title]
+	if err != nil {
 		return allMeetings.meetings[title], true
 	} else {
 		fmt.Println(os.Stderr, "Error:%s", "no such meeting")
@@ -75,16 +82,28 @@ func (allMeetings *Meetings) queryMeeting(title string) (*Meeting, bool) {
 	}
 }
 
-func (allMeetings *Meetings) getParticipator() []string {
-	return allMeetings.Participators
+func (meeting *Meeting) getParticipator() []string {
+	return meeting.Participators
 }
 
-func (allMeetings *Meetings) deleteMeeting(title string) bool {
-	if _, ok := allMeetings.meetings[title]; ok {
-		delete(allMeetings.meetings, title)
-		return true
-	} else {
-		fmt.Println(os.Stderr, "error:%s\n", "no such meeting to delete")
-		return false
+func (allMeetings *Meetings) load() {
+	var meetingDb meetingDb
+	allMeetings.storage.load(&meetingDb)
+	for index, meeting := range meetingDb.Data {
+		allMeetings.meetings[meeting.Title] = &meetingDb.Data[index]
 	}
+}
+
+func (allMeetings *Meetings) dump() {
+	var meetingDb meetingDb
+	for _, meeting := range allMeetings.meetings {
+		meetingDb.Data = append(meetingDb.Data, *meeting)
+	}
+	allMeetings.storage.dump(&meetingDb)
+}
+
+func (allMeetings *Meetings) Init() { // meeting call this function in the root cmd
+	allMeetings.storage.path = "../data/meeting.json"
+	allMeetings.meetings = make(map[string]*Meeting)
+	allMeetings.load()
 }

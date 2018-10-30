@@ -30,8 +30,7 @@ var queryMeetingCmd = &cobra.Command{
 		title, _ := cmd.Flags().GetString("title")
 		meeting, err := service.QueryMeeting(title)
 		if err == nil {
-			s := "meeting title:" + title + "\n meeting participator"
-			+meeting.getParticipator() //wait for more params of meeting
+			s := "meeting title:" + title + "\n meeting participator" + meeting.getParticipator()
 			fmt.Println(s)
 		} else {
 			fmt.Fprintln(os.Stderr, "Error:", err)

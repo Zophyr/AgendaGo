@@ -9,12 +9,15 @@ type meeting = entity.Meeting
 
 const timeFormat = "2018-10-28/13:08:22"
 
-//增加会议
+func AddMeetingToCurrSession(title string, participatorName []string, startTime string, endTime string) error {
 
-func AddMeeting(title string, participatorName []string, startTime string, endTime string) (err error) {
-	// 没有登陆则返回报错
+	// check if someone has logged in
 	if !entity.CurrSession.HasLoggedIn() {
 		return fmt.Errorf("You have not logged in")
+	}
+
+	if entity.AllMeetings.FindByTitle(title).size != 0 {
+		return fmt.Errorf("The name same as %s has been added", title)
 	}
 
 	speecherName := entity.CurrSession.GetCurUser()
@@ -25,17 +28,14 @@ func AddMeeting(title string, participatorName []string, startTime string, endTi
 		StartDate:     startTime,
 		EndDate:       endTime,
 	}
-	//验证
-	// err = validateNewMeeting(newMeeting)
-	// if err != nil {
-	// 	return
-	// }
+
 	entity.MeetingModel.AddMeeting(newMeeting)
-	return
+	return nil
 }
 
 func DeleteFromMeeting(title string) error {
-	// 没有登陆则返回报错
+
+	// check if someone has logged in
 	if !entity.CurrSession.HasLoggedIn() {
 		return fmt.Errorf("You have not logged in")
 	}
@@ -54,7 +54,7 @@ func DeleteFromMeeting(title string) error {
 
 // delete the meeting whose name is title
 func DeleteFromMeetingByTitle(title string) error {
-	if meeting, err := entity.queryMeeting(title); err == nil {
+	if meeting, err := entity.QueryMeeting(title); err == nil {
 		entity.DeleteMeeting(title)
 		return nil
 	} else {

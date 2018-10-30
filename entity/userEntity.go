@@ -5,14 +5,14 @@ import (
 )
 
 type User struct {
-	Username string	'json:"username"' 
-	Password string	'json:"password"'
-	Email    string 'json:"email"'
-	Phone    string 'json:"phone"'
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
+	Phone    string `json:"phone"`
 }
 
-type UserDB struct{
-	Data []User 'json:"Data"'
+type UserDB struct {
+	Data []User `json:"data"`
 }
 
 type Users struct {
@@ -22,9 +22,9 @@ type Users struct {
 
 var AllUsers Users
 
-func (allusers *Users) Init() {      // meeting call this function in the root cmd
+func (allusers *Users) Init() { // meeting call this function in the root cmd
 	allusers.storage.path = "../data/user.json"
-	allusers.meetings = make(map[string]*User)
+	allusers.users = make(map[string]*User)
 	allusers.load()
 }
 
