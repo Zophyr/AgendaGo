@@ -3,11 +3,50 @@ package service
 import (
 	"AgendaGo/entity"
 	"fmt"
+	"time"
 )
 
 type meeting = entity.Meeting
 
 const timeFormat = "2018-10-28/13:08:22"
+
+func validateNewMeeting(meeting *meeting) error {
+
+	if err := validateNewTimeInterval(meeting.StartTime, meeting.EndTime); err != nil {
+		return err
+	}
+
+	if flag, err := validateNewMeetingTime(meeting); !flag {
+		return err
+	}
+
+	return nil
+}
+
+func validateNewTimeInterval(startTime string, endTime string) error {
+	if len(startTime) == 0 {
+		return fmt.Errorf("Empty start time")
+	}
+	_, err := time.Parse(timeFormat, startTime)
+
+	if err != nil {
+		return fmt.Errorf("Illegal StartTime format")
+	}
+
+	if len(endTime) == 0 {
+		return fmt.Errorf("Empty end time")
+	}
+	_, err = time.Parse(timeFormat, endTime)
+
+	if err != nil {
+		return fmt.Errorf("Illegal EndTime format")
+	}
+
+	if startTime > endTime {
+		return fmt.Errorf("StartTime is after the EndTime")
+	}
+	return nil
+}
 
 func AddMeetingToCurrSession(title string, participatorName []string, startTime string, endTime string) error {
 
@@ -16,11 +55,31 @@ func AddMeetingToCurrSession(title string, participatorName []string, startTime 
 		return fmt.Errorf("You have not logged in")
 	}
 
+	if len(title) == 0 {
+		return fmt.Errorf("Title should not be empty")
+	}
+
+	if len(participatorName) == 0 {
+		return fmt.Errorf("Meeting must have participator")
+	}
+
+	// check if there exists meetings with same name
 	if entity.AllMeetings.FindByTitle(title).size != 0 {
 		return fmt.Errorf("The name same as %s has been added", title)
 	}
 
 	speecherName := entity.CurrSession.GetCurUser()
+
+	// check if the participators exist
+	for _, partiName := range participatorName {
+		if len(entity.AllUsers.FindByName(partiName)) == 0 {
+			return fmt.Errorf("User %s doesn't exist", partiName)
+		}
+		if participatorName == speecherName {
+			return fmt.Errorf("You can't be the participator")
+		}
+	}
+
 	newMeeting := &meeting{
 		Title:         title,
 		Sponsor:       speecherName,
@@ -29,7 +88,11 @@ func AddMeetingToCurrSession(title string, participatorName []string, startTime 
 		EndDate:       endTime,
 	}
 
-	entity.MeetingModel.AddMeeting(newMeeting)
+	if err := validateMeeting(newMeeting); err != nil {
+		return err
+	}
+
+	entity.AllMeetings.AddMeeting(newMeeting)
 	return nil
 }
 
