@@ -41,10 +41,7 @@ func LoginUser(username, password string) error {
 	}
 
 	// check whether the username and password are correct or not
-	isMatch, err := entity.AllUsers.IsMatchNamePass(username, password)
-	if err != nil {
-		return err
-	}
+	isMatch:= entity.AllUsers.IsMatchNamePass(username, password)
 	if !isMatch {
 		return fmt.Errorf("Wrong password")
 	}
@@ -93,11 +90,15 @@ func DeleteUser() error {
 
 	curUserName := entity.CurrSession.GetCurUserName()
 
-	meetings := entity.AllMeetings.FindBy(func(meeting *Meeting) bool {
+	sponsorMeetings := entity.AllMeetings.FindBy(func(meeting *Meeting) bool {
 		// find the meeting whose sponsor is currUser
 		if curUserName == meeting.Sponsor {
 			return true
 		}
+		return false
+	})
+
+	partiMeetings := entity.AllMeetings.FindBy(func(meeting *Meeting) bool {
 		// fint the meeting which currUser participates in
 		for _, participator := range meeting.Participators {
 			if curUserName == participator {
@@ -107,15 +108,19 @@ func DeleteUser() error {
 		return false
 	})
 
-	// delete the meeting
-	for _, meeting := range meetings {
-		err := DeleteFromMeeting(meeting.Title)
-		if err != nil {
+
+	// delete the sponsor meeting
+	for _, meeting := range sponsorMeetings {
+		if err := entity.AllMeetings.DeleteMeeting(meeting.Title);err != nil {
 			return err
 		}
 	}
 
-	//成功全部处理
+	// delete the participate meeting
+	for _, meeting := range partiMeetings {
+		entity.AllMeetings.DeleteParticipatorFromMeeting(meeting, curUserName)
+	}
+
 	LogoutUser()
 	entity.AllUsers.DeleteUser(&entity.AllUsers.FindByName(curUserName)[0])
 	return nil
