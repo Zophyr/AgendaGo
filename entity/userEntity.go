@@ -5,23 +5,36 @@ import (
 )
 
 type User struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
-	Phone    string `json:"phone"`
+	Username string	'json:"username"' 
+	Password string	'json:"password"'
+	Email    string 'json:"email"'
+	Phone    string 'json:"phone"'
+}
+
+type UserDB struct{
+	Data []User 'json:"Data"'
 }
 
 type Users struct {
+	storage
 	users map[string]*User
 }
 
 var AllUsers Users
 
+func (allusers *Users) Init() {      // meeting call this function in the root cmd
+	allusers.storage.path = "../data/user.json"
+	allusers.meetings = make(map[string]*User)
+	allusers.load()
+}
+
 func (allUsers *Users) AddUser(user *User) {
+	defer allUsers.dump()
 	allUsers.users[user.Username] = user
 }
 
 func (allUsers *Users) DeleteUser(user *User) {
+	defer allUsers.dump()
 	delete(allUsers.users, user.Username)
 }
 
@@ -48,4 +61,20 @@ func (allUsers *Users) IsMatchNamePass(username, password string) (bool, error) 
 		return false, fmt.Errorf("The user doesn't exist")
 	}
 	return result[0].Password == password, nil
+}
+
+func (allusers *User) load() {
+	var userDB UserDB
+	allusers.storage.load(&userDb)
+	for index, user := range userDb.Data {
+		allusers.users[user.Username] = &userDB.Data[index]
+	}
+}
+
+func (allusers *User) dump() {
+	var userDB UserDB
+	for _, user := range allusers.users {
+		userDb.Data = append(userDb.Data, *user)
+	}
+	allusers.storage.dump(&userDB)
 }
