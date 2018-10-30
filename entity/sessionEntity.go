@@ -6,10 +6,12 @@ type Session struct {
 
 var CurrSession Session
 
+// return whether someone has been logged in or not
 func (currSession *Session) HasLoggedIn() bool {
 	return currSession.CurrUser != nil
 }
 
-func (currSession *Session) GetCurUser() string {
+// return the name of current user
+func (currSession *Session) GetCurUserName() string {
 	return currSession.CurrUser.Username
 }

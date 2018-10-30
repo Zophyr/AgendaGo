@@ -52,6 +52,16 @@ func DeleteFromMeeting(title string) error {
 	return nil
 }
 
+// delete the meeting whose name is title
+func DeleteFromMeetingByTitle(title string) error {
+	if meeting, err := entity.queryMeeting(title); err == nil {
+		entity.DeleteMeeting(title)
+		return nil
+	} else {
+		return fmt.Errorf("no meeting to be deleted")
+	}
+}
+
 //删除与会者
 func DeleteParticipatorFromMeeting(title string, participatorNames []string) error {
 	//登陆检查
