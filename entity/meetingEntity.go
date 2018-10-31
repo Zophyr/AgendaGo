@@ -85,7 +85,7 @@ func (allMeetings *Meetings) dump() {
 }
 
 func (allMeetings *Meetings) Init(path string) { // meeting call this function in the root cmd
-	allMeetings.storage.path = "../data/meeting.json"
+	allMeetings.storage.path = "./data/meeting.json"
 	allMeetings.meetings = make(map[string]*Meeting)
 	allMeetings.load()
 }
