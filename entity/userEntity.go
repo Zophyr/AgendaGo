@@ -56,18 +56,18 @@ func (allUsers *Users) IsMatchNamePass(username, password string) bool {
 	return result[0].Password == password
 }
 
-func (allusers *User) load() {
+func (allusers *Users) load() {
 	var userDB UserDB
-	allusers.storage.load(&userDb)
-	for index, user := range userDb.Data {
+	allusers.storage.load(&userDB)
+	for index, user := range userDB.Data {
 		allusers.users[user.Username] = &userDB.Data[index]
 	}
 }
 
-func (allusers *User) dump() {
+func (allusers *Users) dump() {
 	var userDB UserDB
 	for _, user := range allusers.users {
-		userDb.Data = append(userDb.Data, *user)
+		userDB.Data = append(userDB.Data, *user)
 	}
 	allusers.storage.dump(&userDB)
 }

@@ -118,7 +118,7 @@ func DeleteUser() error {
 
 	// delete the participate meeting
 	for _, meeting := range partiMeetings {
-		entity.AllMeetings.DeleteParticipatorFromMeeting(meeting, curUserName)
+		entity.AllMeetings.DeleteParticipator(meeting, curUserName)
 	}
 
 	LogoutUser()
