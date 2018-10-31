@@ -1,28 +1,36 @@
 package entity
 
-import (
-	"fmt"
-	"os"
-)
-
 type Meeting struct {
 	Title         string   `json:"tile"`
 	Sponsor       string   `json:"sponsor"`
 	Participators []string `json:"participators"`
-	StartDate     string   `json:"startDate"`
-	EndDate       string   `json:"endDate"`
+	StartTime     string   `json:"startTime"`
+	EndTime       string   `json:"endTime"`
 }
 
-type meetingModel struct {
+type MeetingDB struct {
+	Data []Meeting `json:"data"`
+}
+
+type Meetings struct {
+	storage
 	meetings map[string]*Meeting
 }
 
-var MeetingModel meetingModel
+var AllMeetings Meetings
 
-//找到所有符合条件的会议
+func (allMeetings *Meetings) AddMeeting(meeting *Meeting) {
+	defer allMeetings.dump()
+	allMeetings.meetings[meeting.Title] = meeting
+}
 
-//使用filter来实现
-func (allMeetings *meetingModel) FindBy(cond func(*Meeting) bool) []Meeting {
+func (allMeetings *Meetings) DeleteMeeting(meeting *Meeting) {
+	defer allMeetings.dump()
+	delete(allMeetings.meetings, meeting.Title)
+}
+
+// use a filter to find appropriate meetings
+func (allMeetings *Meetings) FindBy(cond func(*Meeting) bool) []Meeting {
 	result := []Meeting{}
 	for _, meeting := range allMeetings.meetings {
 		if cond(meeting) {
@@ -32,62 +40,56 @@ func (allMeetings *meetingModel) FindBy(cond func(*Meeting) bool) []Meeting {
 	return result
 }
 
-func (model *meetingModel) FindByTitle(meetingname string) *Meeting {
-	return model.meetings[meetingname]
+func (allMeetings *Meetings) FindByTitle(title string) []Meeting {
+	return allMeetings.FindBy(func(meeting *Meeting) bool {
+		return title == meeting.Title
+	})
 }
 
-//删除与会者
+// delete a participator
+func (allMeetings *Meetings) DeleteParticipator(meeting *Meeting, participator string) {
 
-func (model *meetingModel) DeleteParticipatorFromMeeting(meeting *Meeting, participator string) {
-	//logger.Println("[meetingmodel] try deleting a participator from meeting", meeting.Title)
-	curMeetingParticipators := model.meetings[meeting.Title].Participators
+	curMeetingParticipators := allMeetings.meetings[meeting.Title].Participators
 	for i, p := range curMeetingParticipators {
 		if p == participator {
 			curMeetingParticipators = append(curMeetingParticipators[:i], curMeetingParticipators[i+1:]...)
 			break
 		}
 	}
-	model.meetings[meeting.Title].Participators = curMeetingParticipators
-	//model.dump()
-	//logger.Println("[meetingmodel] deleted a participator from meeting", meeting.Title)
+	if len(curMeetingParticipators) == 0 {
+		delete(allMeetings.meetings, meeting.Title)
+	}
+	allMeetings.meetings[meeting.Title].Participators = curMeetingParticipators
 }
 
-//增加与会者
-func (model *meetingModel) AddParticipatorToMeeting(meeting *Meeting, participator string) {
-	curMeetingParticipators := model.meetings[meeting.Title].Participators
-	model.meetings[meeting.Title].Participators = append(curMeetingParticipators, participator)
+// add a participator to a meeting
+func (allMeetings *Meetings) AddParticipatorToMeeting(meeting *Meeting, participator string) {
+	curMeetingParticipators := allMeetings.meetings[meeting.Title].Participators
+	allMeetings.meetings[meeting.Title].Participators = append(curMeetingParticipators, participator)
 }
 
-func (model *meetingModel) AddMeeting(meeting *Meeting) {
-	_, ok := model.meetings[meeting.Title]
-	if ok == false {
-		model.meetings[meeting.Title] = meeting
-		fmt.Printf("adding meeting : %s\n", meeting.Title)
-	} else {
-		fmt.Println(os.Stderr, "Error:%s", "already exists a meeting with the same title")
+func (allMeetings *Meetings) load() {
+	var meetingDB MeetingDB
+	allMeetings.storage.load(&meetingDB)
+	for index, meeting := range meetingDB.Data {
+		allMeetings.meetings[meeting.Title] = &meetingDB.Data[index]
 	}
 }
 
-func (model *meetingModel) queryMeeting(title string) (*Meeting, bool) {
-	_, ok := model.meetings[title]
-	if ok == true {
-		return model.meetings[title], true
-	} else {
-		fmt.Println(os.Stderr, "Error:%s", "no such meeting")
-		return nil, false
+func (allMeetings *Meetings) dump() {
+	var meetingDb MeetingDB
+	for _, meeting := range allMeetings.meetings {
+		meetingDb.Data = append(meetingDb.Data, *meeting)
 	}
+	allMeetings.storage.dump(&meetingDb)
 }
 
-func (meeting *Meeting) getParticipator() []string {
-	return meeting.Participators
+func (allMeetings *Meetings) Init(path string) { // meeting call this function in the root cmd
+	allMeetings.storage.path = "../data/meeting.json"
+	allMeetings.meetings = make(map[string]*Meeting)
+	allMeetings.load()
 }
 
-func (model *meetingModel) deleteMeeting(title string) bool {
-	if _, ok := model.meetings[title]; ok {
-		delete(model.meetings, title)
-		return true
-	} else {
-		fmt.Println(os.Stderr, "error:%s\n", "no such meeting to delete")
-		return false
-	}
+func init() {
+	addModel(&AllMeetings, "meeting_data")
 }

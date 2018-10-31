@@ -1,18 +1,14 @@
 package entity
 
-import (
-	"fmt"
-)
-
 type User struct {
-	Username string	'json:"username"' 
-	Password string	'json:"password"'
-	Email    string 'json:"email"'
-	Phone    string 'json:"phone"'
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
+	Phone    string `json:"phone"`
 }
 
-type UserDB struct{
-	Data []User 'json:"Data"'
+type UserDB struct {
+	Data []User `json:"data"`
 }
 
 type Users struct {
@@ -21,12 +17,6 @@ type Users struct {
 }
 
 var AllUsers Users
-
-func (allusers *Users) Init() {      // meeting call this function in the root cmd
-	allusers.storage.path = "../data/user.json"
-	allusers.meetings = make(map[string]*User)
-	allusers.load()
-}
 
 func (allUsers *Users) AddUser(user *User) {
 	defer allUsers.dump()
@@ -38,6 +28,7 @@ func (allUsers *Users) DeleteUser(user *User) {
 	delete(allUsers.users, user.Username)
 }
 
+// use a filter to find appropriate users
 func (allUsers *Users) FindBy(cond func(*User) bool) []User {
 	result := []User{}
 	for _, user := range allUsers.users {
@@ -54,26 +45,33 @@ func (allUsers *Users) FindByName(username string) []User {
 	})
 }
 
-func (allUsers *Users) IsMatchNamePass(username, password string) (bool, error) {
+func (allUsers *Users) IsMatchNamePass(username, password string) bool {
 	result := allUsers.FindByName(username)
-	if len(result) == 0 {
-		return false, fmt.Errorf("The user doesn't exist")
-	}
-	return result[0].Password == password, nil
+	return result[0].Password == password
 }
 
-func (allusers *User) load() {
+func (allusers *Users) load() {
 	var userDB UserDB
-	allusers.storage.load(&userDb)
-	for index, user := range userDb.Data {
+	allusers.storage.load(&userDB)
+	for index, user := range userDB.Data {
 		allusers.users[user.Username] = &userDB.Data[index]
 	}
 }
 
-func (allusers *User) dump() {
+func (allusers *Users) dump() {
 	var userDB UserDB
 	for _, user := range allusers.users {
-		userDb.Data = append(userDb.Data, *user)
+		userDB.Data = append(userDB.Data, *user)
 	}
 	allusers.storage.dump(&userDB)
+}
+
+func (allusers *Users) Init(path string) { // user call this function in the root cmd
+	allusers.storage.path = "../data/user.json"
+	allusers.users = make(map[string]*User)
+	allusers.load()
+}
+
+func init() {
+	addModel(&AllUsers, "user_data")
 }

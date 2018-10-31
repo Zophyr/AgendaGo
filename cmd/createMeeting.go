@@ -17,29 +17,29 @@ package cmd
 import (
 	"AgendaGo/service"
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 // createMeetingCmd represents the createMeeting command
 var createMeetingCmd = &cobra.Command{
-	Use:   "createMeeting -t [meeting title] -p [participators] -s [start time] -e [end time]", //输入格式
+	Use:   "createMeeting -t [meeting title] -p [participators] -s [start time] -e [end time]",
 	Short: "create a meeting",
 	Long:  `e.g. createMeeting -t MixShow -p a b c -s 2018-11-11/10:00 -e 2018-11-11/14:00`,
 
-	Run: func(cmd *cobra.Command, args []string) { //调用函数创建会议
+	Run: func(cmd *cobra.Command, args []string) {
 
 		theTitle, _ := cmd.Flags().GetString("title")
 		theParticipators, _ := cmd.Flags().GetStringArray("participator")
 		theStart, _ := cmd.Flags().GetString("startTime")
 		theEnd, _ := cmd.Flags().GetString("endTime")
-		//调用service 判断是否创建成功
-		err := service.AddMeeting(theTitle, theParticipators, theStart, theEnd)
+		err := service.AddMeetingToCurrSession(theTitle, theParticipators, theStart, theEnd)
 
 		if err == nil {
 			fmt.Println("Add meeting: ", theTitle, " successfully!")
 		} else {
-			fmt.Fprintln(os.Stderr, "Error: ", err)
+			fmt.Fprintln(os.Stderr, "Error:", err)
 		}
 
 	},
