@@ -63,6 +63,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// queryMeetingCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	createMeetingCmd.Flags().StringP("startTime", "s", "", "start time of the query interval")
-	createMeetingCmd.Flags().StringP("endTime", "e", "", "end time of the query interval")
+	queryMeetingCmd.Flags().StringP("startTime", "s", "", "start time of the query interval")
+	queryMeetingCmd.Flags().StringP("endTime", "e", "", "end time of the query interval")
 }
