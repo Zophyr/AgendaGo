@@ -10,7 +10,7 @@ type meeting = entity.Meeting
 
 const timeFormat = "2018-10-28/13:08:22"
 
-func validateFreeTime(startTime string, endTime string, meetings []Meeting) error {
+func validateFreeTime(startTime string, endTime string, meetings []entity.Meeting) error {
 	for _, meeting := range meetings {
 		if endTime > meeting.StartTime && meeting.EndTime > startTime {
 			return fmt.Errorf("Conflit with meeting %s", meeting.Title)
@@ -19,7 +19,7 @@ func validateFreeTime(startTime string, endTime string, meetings []Meeting) erro
 	return nil
 }
 
-func validateNewMeeting(meeting *Meeting) error {
+func validateNewMeeting(meeting *entity.Meeting) error {
 
 	if len(meeting.StartTime) == 0 {
 		return fmt.Errorf("Start time is empty")
@@ -43,23 +43,25 @@ func validateNewMeeting(meeting *Meeting) error {
 		return fmt.Errorf("StartTime is after EndTime")
 	}
 
-	meetings := entity.AllMeetings.FindBy(func(meeting *Meeting) bool {
-		if meeting.Speecher == newMeeting.Speecher {
+	meetings := entity.AllMeetings.FindBy(func(m *entity.Meeting) bool {
+		if m.Sponsor == meeting.Sponsor {
 			return true
 		}
-		for _, participator := range meeting.Participators {
-			if participator == newMeeting.Speecher {
+		// todo check
+		for _, participator := range m.Participators {
+			if participator == meeting.Sponsor {
 				return true
 			}
 		}
 		return false
 	})
 
-	for _, participatorName := range newMeeting.Participators {
-		results = append(results, entity.AllMeetings.FindBy(func(m *meeting) bool {
-			if m.Speecher == participatorName {
+	for _, participatorName := range meeting.Participators {
+		meetings = append(meetings, entity.AllMeetings.FindBy(func(m *entity.Meeting) bool {
+			if m.Sponsor == participatorName {
 				return true
 			}
+			// todo check
 			for _, participator := range m.Participators {
 				if participator == participatorName {
 					return true
@@ -69,7 +71,7 @@ func validateNewMeeting(meeting *Meeting) error {
 		})...)
 	}
 
-	return validateFreeTime(meeting.StartTime, meeting.EndTime, results)
+	return validateFreeTime(meeting.StartTime, meeting.EndTime, meetings)
 
 }
 
@@ -93,27 +95,27 @@ func AddMeetingToCurrSession(title string, participatorName []string, startTime 
 		return fmt.Errorf("The name same as %s has been added", title)
 	}
 
-	speecherName := entity.CurrSession.GetCurUser()
+	sponsorName := entity.CurrSession.GetCurUserName()
 
 	// check if the participators exist
 	for _, partiName := range participatorName {
 		if len(entity.AllUsers.FindByName(partiName)) == 0 {
 			return fmt.Errorf("User %s doesn't exist", partiName)
 		}
-		if partiName == speecherName {
-			return fmt.Errorf("The speecher can't be the participator")
+		if partiName == sponsorName {
+			return fmt.Errorf("The sponsor can't be the participator")
 		}
 	}
 
 	newMeeting := &meeting{
 		Title:         title,
-		Sponsor:       speecherName,
+		Sponsor:       sponsorName,
 		Participators: participatorName,
 		StartTime:     startTime,
 		EndTime:       endTime,
 	}
 
-	if err := validateMeeting(newMeeting); err != nil {
+	if err := validateNewMeeting(newMeeting); err != nil {
 		return err
 	}
 
@@ -121,7 +123,7 @@ func AddMeetingToCurrSession(title string, participatorName []string, startTime 
 	return nil
 }
 
-func DeleteFromMeeting(title string) error {
+func QuitFromMeeting(title string) error {
 
 	// check if someone has logged in
 	if !entity.CurrSession.HasLoggedIn() {
@@ -129,25 +131,37 @@ func DeleteFromMeeting(title string) error {
 	}
 
 	meeting := entity.AllMeetings.FindByTitle(title)
-	if meeting.Sponsor != entity.CurrSession.GetCurUser() {
-		entity.AllMeetings.DeleteParticipator(meeting, entity.CurrSession.GetCurUser())
-		if len(entity.AllMeetings.FindByTitle(title).Participators) == 0 {
-			//entity.AllMeetings.deleteMeeting(title)
-		}
-		return nil
+	if len(meeting) == 0 {
+		return fmt.Errorf("Meeting %s doesn't exist", title)
 	}
-	//entity.AllMeetings.deleteMeeting(title)
+
+	if meeting[0].Sponsor != entity.CurrSession.GetCurUserName() {
+		entity.AllMeetings.DeleteParticipator(&meeting[0], entity.CurrSession.GetCurUserName())
+		return nil
+	} else {
+		entity.AllMeetings.DeleteMeeting(&meeting[0])
+	}
 	return nil
 }
 
-// delete the meeting whose name is title
-func DeleteFromMeetingByTitle(title string) error {
-	if meeting, err := entity.QueryMeeting(title); err == nil {
-		entity.DeleteMeeting(title)
-		return nil
-	} else {
-		return fmt.Errorf("no meeting to be deleted")
+// Delete the meeting whose name is title
+// The logged user should be the sponsor
+func DeleteMeetingByTitle(title string) error {
+
+	// check if someone has logged in
+	if !entity.CurrSession.HasLoggedIn() {
+		return fmt.Errorf("You have not logged in")
 	}
+
+	meeting := entity.AllMeetings.FindByTitle(title)
+	if len(meeting) == 0 {
+		return fmt.Errorf("Meeting %s doesn't exist", title)
+	}
+	if meeting[0].Sponsor != entity.CurrSession.GetCurUserName() {
+		return fmt.Errorf("You are not the sponsor of meeting %s", title)
+	}
+	entity.AllMeetings.DeleteMeeting(&meeting[0])
+	return nil
 }
 
 func DeleteParticipatorFromMeeting(title string, participatorNames []string) error {
@@ -168,7 +182,7 @@ func DeleteParticipatorFromMeeting(title string, participatorNames []string) err
 		}
 
 		flag := false
-		for _, curParticipator := range curMeeting.Participators {
+		for _, curParticipator := range curMeeting[0].Participators {
 			if curParticipator == participatorName {
 				flag = true
 			}
@@ -178,7 +192,7 @@ func DeleteParticipatorFromMeeting(title string, participatorNames []string) err
 			return fmt.Errorf("Participator %s is not in the meeting %s", participatorName, title)
 		}
 
-		entity.AllMeetings.DeleteParticipator(curMeeting, participatorName)
+		entity.AllMeetings.DeleteParticipator(&curMeeting[0], participatorName)
 	}
 	return nil
 }
@@ -200,8 +214,8 @@ func AddParticipatorToMeeting(title string, participatorNames []string) error {
 			return fmt.Errorf("User %s doesn't exist", participatorName)
 		}
 
-		meetings := entity.AllMeetings.FindBy(func(meeting *Meeting) bool {
-			if meeting.Speecher == participatorName {
+		meetings := entity.AllMeetings.FindBy(func(meeting *entity.Meeting) bool {
+			if meeting.Sponsor == participatorName {
 				return true
 			}
 			for _, pName := range meeting.Participators {
@@ -212,11 +226,32 @@ func AddParticipatorToMeeting(title string, participatorNames []string) error {
 			return false
 		})
 
-		return validateFreeTime(targetMeeting.StartTime, targetMeeting.EndTime, meetings)
+		return validateFreeTime(targetMeeting[0].StartTime, targetMeeting[0].EndTime, meetings)
 	}
 
 	for _, participatorName := range participatorNames {
-		entity.AllMeetings.AddParticipatorToMeeting(curMeeting, participatorName)
+		entity.AllMeetings.AddParticipatorToMeeting(&targetMeeting[0], participatorName)
+	}
+
+	return nil
+}
+
+func QueryMeeting(startTime, endTime string) (*entity.Meeting, error) {
+	return nil, nil
+}
+
+func ClearAllMeeting() error {
+
+	if !entity.CurrSession.HasLoggedIn() {
+		return fmt.Errorf("No one has logged in")
+	}
+
+	meetings := entity.AllMeetings.FindBy(func(meeting *entity.Meeting) bool {
+		return entity.CurrSession.GetCurUserName() == meeting.Sponsor
+	})
+
+	for _, meeting := range meetings {
+		entity.AllMeetings.DeleteMeeting(&meeting)
 	}
 
 	return nil

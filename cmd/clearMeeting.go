@@ -28,7 +28,7 @@ var clearMeetingCmd = &cobra.Command{
 	Short: "clear all the meeting",
 	Long:  `by running this clear all the register meeting.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := service.DeleteAllMeeting()
+		err := service.ClearAllMeeting()
 		if err == nil {
 			fmt.Println("Cleared all the meetings")
 		} else {
