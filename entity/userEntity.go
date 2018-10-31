@@ -18,12 +18,6 @@ type Users struct {
 
 var AllUsers Users
 
-func (allusers *Users) Init() { // meeting call this function in the root cmd
-	allusers.storage.path = "../data/user.json"
-	allusers.users = make(map[string]*User)
-	allusers.load()
-}
-
 func (allUsers *Users) AddUser(user *User) {
 	defer allUsers.dump()
 	allUsers.users[user.Username] = user
@@ -70,4 +64,14 @@ func (allusers *Users) dump() {
 		userDB.Data = append(userDB.Data, *user)
 	}
 	allusers.storage.dump(&userDB)
+}
+
+func (allusers *Users) Init(path string) { // user call this function in the root cmd
+	allusers.storage.path = "../data/user.json"
+	allusers.users = make(map[string]*User)
+	allusers.load()
+}
+
+func init() {
+	addModel(&AllUsers, "user_data")
 }

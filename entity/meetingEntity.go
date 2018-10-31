@@ -84,8 +84,12 @@ func (allMeetings *Meetings) dump() {
 	allMeetings.storage.dump(&meetingDb)
 }
 
-func (allMeetings *Meetings) Init() { // meeting call this function in the root cmd
+func (allMeetings *Meetings) Init(path string) { // meeting call this function in the root cmd
 	allMeetings.storage.path = "../data/meeting.json"
 	allMeetings.meetings = make(map[string]*Meeting)
 	allMeetings.load()
+}
+
+func init() {
+	addModel(&AllMeetings, "meeting_data")
 }

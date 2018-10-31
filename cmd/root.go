@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"AgendaGo/entity"
 	"fmt"
 	"os"
 
@@ -86,4 +87,6 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+
+	entity.Init()
 }

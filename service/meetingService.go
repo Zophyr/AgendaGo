@@ -236,7 +236,7 @@ func AddParticipatorToMeeting(title string, participatorNames []string) error {
 	return nil
 }
 
-func QueryMeeting(startTime, endTime string) (*entity.Meeting, error) {
+func QueryMeeting(startTime, endTime string) ([]entity.Meeting, error) {
 	return nil, nil
 }
 
