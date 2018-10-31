@@ -1,10 +1,5 @@
 package entity
 
-import (
-	"fmt"
-	"os"
-)
-
 type Meeting struct {
 	Title         string   `json:"tile"`
 	Sponsor       string   `json:"sponsor"`
@@ -13,12 +8,12 @@ type Meeting struct {
 	EndTime       string   `json:"endTime"`
 }
 
-type meetingDb struct {
-	storage
+type MeetingDB struct {
 	Data []Meeting `json:"data"`
 }
 
 type Meetings struct {
+	storage
 	meetings map[string]*Meeting
 }
 
@@ -67,37 +62,22 @@ func (allMeetings *Meetings) DeleteParticipator(meeting *Meeting, participator s
 	allMeetings.meetings[meeting.Title].Participators = curMeetingParticipators
 }
 
-// add a participator
+// add a participator to a meeting
 func (allMeetings *Meetings) AddParticipatorToMeeting(meeting *Meeting, participator string) {
 	curMeetingParticipators := allMeetings.meetings[meeting.Title].Participators
 	allMeetings.meetings[meeting.Title].Participators = append(curMeetingParticipators, participator)
 }
 
-func (allMeetings *Meetings) QueryMeeting(title string) (*Meeting, bool) {
-	defer allMeetings.dump()
-	_, err := allMeetings.meetings[title]
-	if err != nil {
-		return allMeetings.meetings[title], true
-	} else {
-		fmt.Println(os.Stderr, "Error:%s", "no such meeting")
-		return nil, false
-	}
-}
-
-func (meeting *Meeting) getParticipator() []string {
-	return meeting.Participators
-}
-
 func (allMeetings *Meetings) load() {
-	var meetingDb meetingDb
-	allMeetings.storage.load(&meetingDb)
-	for index, meeting := range meetingDb.Data {
-		allMeetings.meetings[meeting.Title] = &meetingDb.Data[index]
+	var meetingDB MeetingDB
+	allMeetings.storage.load(&meetingDB)
+	for index, meeting := range meetingDB.Data {
+		allMeetings.meetings[meeting.Title] = &meetingDB.Data[index]
 	}
 }
 
 func (allMeetings *Meetings) dump() {
-	var meetingDb meetingDb
+	var meetingDb MeetingDB
 	for _, meeting := range allMeetings.meetings {
 		meetingDb.Data = append(meetingDb.Data, *meeting)
 	}

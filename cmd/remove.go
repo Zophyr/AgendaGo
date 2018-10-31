@@ -17,13 +17,14 @@ package cmd
 import (
 	"AgendaGo/service"
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 // removeCmd represents the remove command
 var removeCmd = &cobra.Command{
-	Use:   "delete-participator",
+	Use:   "delete participator",
 	Short: "delete a participator from meeting",
 	Long:  `delete a participator from meeting`,
 	Run: func(cmd *cobra.Command, args []string) {

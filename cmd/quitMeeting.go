@@ -15,9 +15,9 @@
 package cmd
 
 import (
+	"AgendaGo/service"
 	"fmt"
 	"os"
-	"service"
 
 	"github.com/spf13/cobra"
 )
@@ -31,12 +31,9 @@ var quitMeetingCmd = &cobra.Command{
 	is all clear then delete the meeting`,
 	Run: func(cmd *cobra.Command, args []string) {
 		title, _ := cmd.Flags().GetString("title")
-		err := service.DeleteFromMeeting(title)
+		err := service.QuitFromMeeting(title)
 		if err == nil {
-			if service.queryMeeting(title).getParticipator().empty() == true {
-				fmt.Printf("delete the meeting for there's no participator\n")
-			}
-			fmt.Printf("Quited the meeting %s\n", title)
+			fmt.Printf("Quited the meeting %s successfully\n", title)
 		} else {
 			fmt.Fprintln(os.Stderr, "Error:", err)
 		}

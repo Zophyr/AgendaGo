@@ -24,7 +24,7 @@ import (
 
 // deleteMeetingCmd represents the deleteMeeting command
 var deleteMeetingCmd = &cobra.Command{
-	Use:   "deleteMeeting",
+	Use:   "delete meeting",
 	Short: "delete the meeting",
 	Long:  `input is the title,then according to the input to delete the meeting`,
 	Run: func(cmd *cobra.Command, args []string) {
