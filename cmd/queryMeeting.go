@@ -38,7 +38,7 @@ var queryMeetingCmd = &cobra.Command{
 				return
 			}
 			for i, meeting := range results {
-				fmt.Printf("No. %d \nTitle: %s Speecher: %s\n", i, meeting.Title, meeting.Speecher)
+				fmt.Printf("No. %d \nTitle: %s Speecher: %s\n", i, meeting.Title, meeting.Sponsor)
 				fmt.Printf("Participators:\n")
 				for _, participator := range meeting.Participators {
 					fmt.Printf("%s\n", participator)
