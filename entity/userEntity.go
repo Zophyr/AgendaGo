@@ -67,7 +67,7 @@ func (allusers *Users) dump() {
 }
 
 func (allusers *Users) Init(path string) { // user call this function in the root cmd
-	allusers.storage.path = "../data/user.json"
+	allusers.storage.path = "./data/user.json"
 	allusers.users = make(map[string]*User)
 	allusers.load()
 }

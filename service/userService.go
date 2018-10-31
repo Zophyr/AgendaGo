@@ -14,9 +14,9 @@ func RegisterUser(username, password, email, phone string) error {
 	}
 
 	// check if has been register
-	if entity.AllUsers.FindBy(func(user *entity.User) bool {
+	if len(entity.AllUsers.FindBy(func(user *entity.User) bool {
 		return username == user.Username
-	}) != nil {
+	})) != 0 {
 		return fmt.Errorf(username + " has been registered")
 	}
 
