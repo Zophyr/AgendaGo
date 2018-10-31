@@ -10,27 +10,36 @@ type meeting = entity.Meeting
 
 const timeFormat = "2018-10-28/13:08:22"
 
-func validateNewMeeting(meeting *meeting) error {
+func validateFreeTime(startTime string, endTime string, meetings []Meeting) error {
+	for _, meeting := range meetings {
+		if endTime > meeting.StartTime && meeting.EndTime > startTime {
+			return fmt.Errorf("Conflit with meeting %s", meeting.Title)
+		}
+	}
+	return nil
+}
 
-	if len(meeting.StartDate) == 0 {
+func validateNewMeeting(meeting *Meeting) error {
+
+	if len(meeting.StartTime) == 0 {
 		return fmt.Errorf("Start time is empty")
 	}
-	_, err := time.Parse(timeFormat, meeting.StartDate)
+	_, err := time.Parse(timeFormat, meeting.StartTime)
 
 	if err != nil {
 		return fmt.Errorf("StartTime format is illegal")
 	}
 
-	if len(meeting.EndDate) == 0 {
+	if len(meeting.EndTime) == 0 {
 		return fmt.Errorf("End time is empty")
 	}
-	_, err = time.Parse(timeFormat, meeting.EndDate)
+	_, err = time.Parse(timeFormat, meeting.EndTime)
 
 	if err != nil {
 		return fmt.Errorf("EndTime format is illegal")
 	}
 
-	if meeting.StartDate > meeting.EndDate {
+	if meeting.StartTime > meeting.EndTime {
 		return fmt.Errorf("StartTime is after EndTime")
 	}
 
@@ -47,7 +56,7 @@ func validateNewMeeting(meeting *meeting) error {
 	})
 
 	for _, participatorName := range newMeeting.Participators {
-		results = append(results, entity.MeetingModel.FindBy(func(m *meeting) bool {
+		results = append(results, entity.AllMeetings.FindBy(func(m *meeting) bool {
 			if m.Speecher == participatorName {
 				return true
 			}
@@ -60,13 +69,7 @@ func validateNewMeeting(meeting *meeting) error {
 		})...)
 	}
 
-	for _, meeting := range meetings {
-		if endTime > meeting.StartTime && meeting.EndTime > startTime {
-			return fmt.Errorf("Conflit with meeting %s", meeting.Title)
-		}
-	}
-
-	return nil
+	return validateFreeTime(meeting.StartTime, meeting.EndTime, results)
 
 }
 
@@ -86,7 +89,7 @@ func AddMeetingToCurrSession(title string, participatorName []string, startTime 
 	}
 
 	// check if there exists meetings with same name
-	if entity.AllMeetings.FindByTitle(title).size != 0 {
+	if len(entity.AllMeetings.FindByTitle(title)) != 0 {
 		return fmt.Errorf("The name same as %s has been added", title)
 	}
 
@@ -97,8 +100,8 @@ func AddMeetingToCurrSession(title string, participatorName []string, startTime 
 		if len(entity.AllUsers.FindByName(partiName)) == 0 {
 			return fmt.Errorf("User %s doesn't exist", partiName)
 		}
-		if participatorName == speecherName {
-			return fmt.Errorf("You can't be the participator")
+		if partiName == speecherName {
+			return fmt.Errorf("The speecher can't be the participator")
 		}
 	}
 
@@ -106,8 +109,8 @@ func AddMeetingToCurrSession(title string, participatorName []string, startTime 
 		Title:         title,
 		Sponsor:       speecherName,
 		Participators: participatorName,
-		StartDate:     startTime,
-		EndDate:       endTime,
+		StartTime:     startTime,
+		EndTime:       endTime,
 	}
 
 	if err := validateMeeting(newMeeting); err != nil {
@@ -125,15 +128,15 @@ func DeleteFromMeeting(title string) error {
 		return fmt.Errorf("You have not logged in")
 	}
 
-	meeting := entity.MeetingModel.FindByTitle(title)
+	meeting := entity.AllMeetings.FindByTitle(title)
 	if meeting.Sponsor != entity.CurrSession.GetCurUser() {
-		entity.MeetingModel.DeleteParticipatorFromMeeting(meeting, entity.CurrSession.GetCurUser())
-		if len(entity.MeetingModel.FindByTitle(title).Participators) == 0 {
-			//entity.MeetingModel.deleteMeeting(title)
+		entity.AllMeetings.DeleteParticipator(meeting, entity.CurrSession.GetCurUser())
+		if len(entity.AllMeetings.FindByTitle(title).Participators) == 0 {
+			//entity.AllMeetings.deleteMeeting(title)
 		}
 		return nil
 	}
-	//entity.MeetingModel.deleteMeeting(title)
+	//entity.AllMeetings.deleteMeeting(title)
 	return nil
 }
 
@@ -147,40 +150,35 @@ func DeleteFromMeetingByTitle(title string) error {
 	}
 }
 
-//删除与会者
 func DeleteParticipatorFromMeeting(title string, participatorNames []string) error {
-	//登陆检查
+
 	if !entity.CurrSession.HasLoggedIn() {
 		return fmt.Errorf("No one has logged in")
 	}
-	//检查会议是否存在
-	curMeeting := entity.MeetingModel.FindByTitle(title)
-	if curMeeting == nil {
+
+	curMeeting := entity.AllMeetings.FindByTitle(title)
+	if len(curMeeting) == 0 {
 		return fmt.Errorf("Meeting %s doesn't exist", title)
 	}
-	//检查参与者是否存在
+
 	for _, participatorName := range participatorNames {
 		participator := entity.AllUsers.FindByName(participatorName)
-		if participator == nil {
+		if len(participator) == 0 {
 			return fmt.Errorf("User %s doesn't exist", participatorName)
 		}
 
 		flag := false
-
 		for _, curParticipator := range curMeeting.Participators {
 			if curParticipator == participatorName {
-				entity.MeetingModel.DeleteParticipatorFromMeeting(curMeeting, curParticipator)
 				flag = true
-				// check if the participator is 0
-				if len(entity.MeetingModel.FindByTitle(title).Participators) == 0 {
-					//entity.MeetingModel.deleteMeeting(title)  BUG * 3
-				}
-				break
 			}
 		}
+
 		if !flag {
 			return fmt.Errorf("Participator %s is not in the meeting %s", participatorName, title)
 		}
+
+		entity.AllMeetings.DeleteParticipator(curMeeting, participatorName)
 	}
 	return nil
 }
@@ -192,13 +190,13 @@ func AddParticipatorToMeeting(title string, participatorNames []string) error {
 	}
 
 	targetMeeting := entity.AllMeetings.FindByTitle(title)
-	if targetMeeting == nil {
+	if len(targetMeeting) == 0 {
 		return fmt.Errorf("Meeting %s doesn't exist", title)
 	}
 
 	for _, participatorName := range participatorNames {
 		participator := entity.AllUsers.FindByName(participatorName)
-		if participator == nil {
+		if len(participator) == 0 {
 			return fmt.Errorf("User %s doesn't exist", participatorName)
 		}
 
@@ -214,11 +212,7 @@ func AddParticipatorToMeeting(title string, participatorNames []string) error {
 			return false
 		})
 
-		for _, meeting := range meetings {
-			if targetMeeting.EndDate > meeting.StartDate && meeting.EndDate > targetMeeting.StartDate {
-				return fmt.Errorf("Conflit with meeting %s", meeting.Title)
-			}
-		}
+		return validateFreeTime(targetMeeting.StartTime, targetMeeting.EndTime, meetings)
 	}
 
 	for _, participatorName := range participatorNames {

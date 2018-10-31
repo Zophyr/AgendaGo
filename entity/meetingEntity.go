@@ -9,8 +9,8 @@ type Meeting struct {
 	Title         string   `json:"tile"`
 	Sponsor       string   `json:"sponsor"`
 	Participators []string `json:"participators"`
-	StartDate     string   `json:"startDate"`
-	EndDate       string   `json:"endDate"`
+	StartTime     string   `json:"startTime"`
+	EndTime       string   `json:"endTime"`
 }
 
 type meetingDb struct {
@@ -52,7 +52,7 @@ func (allMeetings *Meetings) FindByTitle(title string) []Meeting {
 }
 
 // delete a participator
-func (allMeetings *Meetings) DeleteParticipatorFromMeeting(meeting *Meeting, participator string) {
+func (allMeetings *Meetings) DeleteParticipator(meeting *Meeting, participator string) {
 
 	curMeetingParticipators := allMeetings.meetings[meeting.Title].Participators
 	for i, p := range curMeetingParticipators {
