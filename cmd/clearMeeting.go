@@ -22,7 +22,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// clearMeetingCmd represents the clearMeeting command
+// clear all the meeting
 var clearMeetingCmd = &cobra.Command{
 	Use:   "clearMeeting",
 	Short: "clear all the meeting",
@@ -39,14 +39,5 @@ var clearMeetingCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(clearMeetingCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// clearMeetingCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
 	// clearMeetingCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

@@ -55,7 +55,7 @@ func LoginUser(username, password string) error {
 func LogoutUser() error {
 
 	// check if someone is logged in
-	if entity.CurrSession.CurrUser != nil {
+	if entity.CurrSession.CurrUser == nil {
 		return fmt.Errorf("No one has logged in")
 	} else {
 		// clear the current user
