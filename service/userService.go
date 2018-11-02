@@ -7,7 +7,7 @@ import (
 
 // user register
 func RegisterUser(username, password, email, phone string) error {
-
+	logln("register user")
 	// check if any information is empty
 	if username == "" || password == "" || email == "" || phone == "" {
 		return fmt.Errorf("One of your information is empty")
@@ -34,7 +34,7 @@ func RegisterUser(username, password, email, phone string) error {
 
 // user login
 func LoginUser(username, password string) error {
-
+	logln("login user")
 	// check if someone has been logged in
 	if entity.CurrSession.HasLoggedIn() {
 		return fmt.Errorf("You have been logged in")
@@ -53,7 +53,7 @@ func LoginUser(username, password string) error {
 
 // user logout
 func LogoutUser() error {
-
+	logln("log out")
 	// check if someone is logged in
 	if entity.CurrSession.CurrUser == nil {
 		return fmt.Errorf("No one has logged in")
@@ -66,7 +66,7 @@ func LogoutUser() error {
 
 // list all users
 func QueryAllUsers() ([]entity.User, error) {
-
+	logln("query all users")
 	// check if someone is logged in
 	if entity.CurrSession.CurrUser == nil {
 		return nil, fmt.Errorf("No one has logged in")
@@ -79,7 +79,7 @@ func QueryAllUsers() ([]entity.User, error) {
 
 // delete a user
 func DeleteUser() error {
-
+	logln("delete user")
 	// check if someone is logged in
 	if entity.CurrSession.CurrUser == nil {
 		return fmt.Errorf("No one has logged in")
