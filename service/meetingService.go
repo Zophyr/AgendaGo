@@ -19,6 +19,7 @@ func validateFreeTime(startTime string, endTime string, meetings []entity.Meetin
 	return nil
 }
 
+//check the formal of the meeting info
 func validateNewMeeting(meeting *entity.Meeting) error {
 
 	if len(meeting.StartTime) == 0 {

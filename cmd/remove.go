@@ -22,7 +22,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// removeCmd represents the remove command
+// remove a aparticipator from a existed meeting
 var removeCmd = &cobra.Command{
 	Use:   "delete participator",
 	Short: "delete a participator from meeting",
