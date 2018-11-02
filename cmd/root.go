@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"AgendaGo/entity"
+	"AgendaGo/service"
 	"fmt"
 	"os"
 
@@ -88,5 +89,9 @@ func initConfig() {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 
+
 	entity.Init()
+	service.InitLogger()
+	//create log file
 }
+
