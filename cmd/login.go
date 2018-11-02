@@ -17,6 +17,7 @@ package cmd
 import (
 	"AgendaGo/service"
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -36,7 +37,7 @@ to quickly create a Cobra application.`,
 		password, _ := cmd.Flags().GetString("password")
 		err := service.LoginUser(username, password)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, "Error:", err)
 		} else {
 			fmt.Println(username + " logins successful")
 		}
