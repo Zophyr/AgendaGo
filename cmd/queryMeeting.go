@@ -15,8 +15,10 @@
 package cmd
 
 import (
+	"AgendaGo/service"
 	"fmt"
-	"service"
+	"os"
+
 	"github.com/spf13/cobra"
 )
 
@@ -27,12 +29,22 @@ var queryMeetingCmd = &cobra.Command{
 	Long: `input is the title,then return the class of the meeting which include
 	 date and participator`,
 	Run: func(cmd *cobra.Command, args []string) {
-		title, _ := cmd.Flags().GetString("title")
-		meeting, err := service.QueryMeeting(title)
+		startTime, _ := cmd.Flags().GetString("startTime")
+		endTime, _ := cmd.Flags().GetString("endTime")
+		results, err := service.QueryMeeting(startTime, endTime)
 		if err == nil {
-			s := "meeting title:" + title + "\n meeting participator"
-			+meeting.getParticipator() //wait for more params of meeting
-			fmt.Println(s)
+			if len(results) == 0 {
+				fmt.Printf("No meeting can be found")
+				return
+			}
+			for i, meeting := range results {
+				fmt.Printf("No. %d \nTitle: %s Speecher: %s\n", i, meeting.Title, meeting.Sponsor)
+				fmt.Printf("Participators:\n")
+				for _, participator := range meeting.Participators {
+					fmt.Printf("%s\n", participator)
+				}
+				fmt.Printf("Start Time: %s  End Time: %s\n\n", meeting.StartTime, meeting.EndTime)
+			}
 		} else {
 			fmt.Fprintln(os.Stderr, "Error:", err)
 		}
@@ -51,5 +63,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// queryMeetingCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	quitMeetingCmd.Flags().StringP("title", "t", "", "/")
+	queryMeetingCmd.Flags().StringP("startTime", "s", "", "start time of the query interval")
+	queryMeetingCmd.Flags().StringP("endTime", "e", "", "end time of the query interval")
 }

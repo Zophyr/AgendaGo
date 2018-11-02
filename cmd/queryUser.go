@@ -17,6 +17,7 @@ package cmd
 import (
 	"AgendaGo/service"
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -29,7 +30,7 @@ var queryUserCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		result, err := service.QueryAllUsers()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, "Error:", err)
 		} else {
 			fmt.Printf("   name  email  phone\n")
 			for i, user := range result {

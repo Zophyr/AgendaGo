@@ -17,21 +17,22 @@ package cmd
 import (
 	"AgendaGo/service"
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 // addCmd represents the add command
 var addCmd = &cobra.Command{
-	Use:   "add-participator",
-	Short: "add a participator to a meeting",
-	Long:  `add a existed participator to a meeting`,
+	Use:   "add participator",
+	Short: "add participators to a meeting",
+	Long:  `add some existed users to a particular meeting`,
 	Run: func(cmd *cobra.Command, args []string) {
 		title, _ := cmd.Flags().GetString("title")
 		participators, _ := cmd.Flags().GetStringArray("participator")
 		err := service.AddParticipatorToMeeting(title, participators)
 		if err == nil {
-			fmt.Printf("Added participator to the meeting %s\n", title)
+			fmt.Printf("Added %s to the meeting %s\n", participators, title)
 		} else {
 			fmt.Fprintln(os.Stderr, "Error:", err)
 		}

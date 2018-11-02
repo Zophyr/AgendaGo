@@ -15,21 +15,23 @@
 package cmd
 
 import (
+	"AgendaGo/service"
 	"fmt"
-	"service"
+	"os"
+
 	"github.com/spf13/cobra"
 )
 
 // deleteMeetingCmd represents the deleteMeeting command
 var deleteMeetingCmd = &cobra.Command{
-	Use:   "deleteMeeting",
+	Use:   "delete meeting",
 	Short: "delete the meeting",
 	Long:  `input is the title,then according to the input to delete the meeting`,
 	Run: func(cmd *cobra.Command, args []string) {
 		title, _ := cmd.Flags().GetString("title")
 		err := service.DeleteMeetingByTitle(title)
 		if err == nil {
-			fmt.Printf("delete the meeting:%s\n", title)
+			fmt.Printf("delete the %s meeting successfully\n", title)
 		} else {
 			fmt.Fprintln(os.Stderr, "Error:", err)
 		}

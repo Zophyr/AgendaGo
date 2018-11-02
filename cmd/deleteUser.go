@@ -17,8 +17,9 @@ package cmd
 import (
 	"AgendaGo/service"
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 // deleteUserCmd represents the deleteUser command
@@ -27,10 +28,9 @@ var deleteUserCmd = &cobra.Command{
 	Short: "delete one account of Agenda and log out",
 	Long:  `delete one account of Agenda and log out.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		//fmt.Println("deleteUser called")
 		err := service.DeleteUser()
 		if err == nil {
-			fmt.Println("The account has been deleted successfully")
+			fmt.Println("Your account has been deleted successfully")
 		} else {
 			fmt.Fprintln(os.Stderr, "Error:", err)
 		}
