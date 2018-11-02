@@ -1,124 +1,59 @@
-# AgendaGo
+# Agenda Go！
 
 > A CLI made by golang
 
-## 等待实现的功能
+## 安装运行
 
-### 注册 register
+```shell
+$ go get github.com/Zophyr/AgendaGo
+```
 
-**相关参数**
+## 程序设计
 
-1. 用户名
-    - username
-    - u
-2. 密码
-    - password
-    - p
-3. 邮箱
-    - email
-    - m
-4. 电话
-    - phone
-    - t
+本次作业的「AgendaGo」是我们初级实训中的「Agenda」会议管理系统的变种。因此我们将模仿在初级实训中「Agenda」的程序设计。
 
-### 登陆 login
+### 构架设计
 
-**相关参数**
+#### 三层构架
 
-1. 用户名
-    - username
-    - u
-2. 密码
-    - password
-    - p
+在初级实训中，采取了三层结构设计。因此，我们将仿照其设计方式来实现AgendaGo。
 
-### 登出 logout
+##### 表示层 `cmd`
 
-**相关参数**：无
+- 负责与用户的交互操作。例如，进行命令的操作、执行某一命令。
+- 负责接收用户的输入。接收用户输入的指令与参数，以及相关命令的数据。并将数据传输给业务逻辑层。
+- 负责进行信息的输出。输出程序执行情况，与交互语句。
 
+##### 业务逻辑层 `service`
 
-### 用户查询 queryUser
+- 业务逻辑的执行，调取`实体层`提供的相关API进行操作。
+- 判断表示层传输进来数据、命令的合法性。
 
-**相关参数**：无
+##### 实体层 `entity`
 
-### 用户删除 deleteUser
+- 暴露相关数据操作接口。
+- 直接对数据进行操作。
+- 文件的读取与存储。
 
-**相关参数**
+### 命令设计
 
-/
+#### POSIX/GNU-风格参数处理
 
-### 创建会议 createMeeting
+```shell
+Available Commands:
+  add           Add participators to a meeting
+  clearMeeting  Clear all the meeting
+  createMeeting Create a meeting
+  delete        Delete the meeting
+  delete        Delete a participator from meeting
+  deleteUser    Delete one account of Agenda and log out
+  help          Help about any command
+  login         User login
+  logout        User logout
+  queryMeeting  Query the meeting by its title
+  queryUser     Show all registered users
+  quitMeeting   Help the current user to quit the correctsponding meeting by its title
+  register      Used to register account
+```
 
-**相关参数**
-
-1. 会议主题
-    - title
-    - t
-2. 参与者
-    - participator
-    - p
-3. 开始时间
-    - starttime
-    - s
-4. 结束时间
-    - endtime
-    - e
-
-### 增加会议参与者 add
-
-**相关参数**
-
-1. 参与者
-    - participator
-    - p
-2. 会议名称
-    - title
-    - t
-
-### 删除会议参与者 remove
-
-**相关参数**
-
-1. 参与者
-    - participator
-    - p
-2. 会议名称
-    - title
-    - t
-
-### 查询会议 queryMeeting
-
-
-1. 会议名称
-  - title
-  - t
-
-functionality:
-    input: title
-    output: print detail of meeting on the screen
-
-### 取消会议 deleteMeeting
-
-**相关参数**
-
-1. 会议名称
-    - title
-    - t
-
-### 退出会议 quitMeeting
-
-**相关参数**
-
-1. 会议名称
-    - title
-    - t
-
-### 清空会议 clearMeeting
-
-**相关参数**
-
-/
-
-### 用户信息储存
-
-### 用户操作log
+[AgendaGo 命令详细介绍](https://github.com/Zophyr/AgendaGo/blob/master/cmd-design.md)
