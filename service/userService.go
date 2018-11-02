@@ -2,8 +2,6 @@ package service
 
 import (
 	"Agenda/entity"
-=======
->>>>>>> pr/4
 	"fmt"
 )
 
