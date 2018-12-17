@@ -6,7 +6,7 @@
 
 cobra 的安装与简单应用
 
-详细可参考：https://blog.csdn.net/Yezo13/article/details/83243202
+详细可参考[博客](https://blog.csdn.net/Yezo13/article/details/83243202)
 
 ## 安装运行
 
